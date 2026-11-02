@@ -2,6 +2,8 @@
 
 Embodied carbon for LEED, from the bill of quantities to the submission report, in the browser.
 
+**Open the app: https://miko00l96.github.io/whole-building-lca/**
+
 - **LEED BD+C v4.1** MRc Building Life-Cycle Impact Reduction, Option 2 (Paths 1–4), and **LEED BD+C v4** Option 4
 - **LEED ID+C v4.1** MRc Interiors Life-Cycle Impact Reduction, Option 3 (Paths 1–3)
 - EN 15804+A2 indicators (GWP = fossil + luluc), stages A1–A3, A4, B4–B5, C1–C4; module D and B6 reported separately
@@ -43,7 +45,7 @@ Without the data pack the app works with ÖKOBAUDAT only, and the start page off
 
 ## Using it
 
-Open the published site, then: Projects > start a project (or open the example) > Setup > BOQ (type, paste, import an
+Open the site, then: Projects > start a project (or open the example) > Setup > BOQ (type, paste, import an
 Excel/CSV file or take quantities from an IFC model) > Designs (choose a material per line for each design) > Results >
 Report. Everything runs locally in the browser.
 

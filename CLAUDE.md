@@ -7,6 +7,8 @@ programmer: Claude writes, runs and checks everything; Michael reviews the resul
 The browser version of the *Whole building LCA* Excel tool (v7.1): LEED BD+C v4.1 Option 2 / v4 Option 4 whole-building LCA
 and ID+C v4.1 Option 3 interiors LCA. React 19 + Vite 8 + TypeScript, ECharts, web-ifc (IFC quantities, no 3D), docx. Static site on
 GitHub Pages; no server. Everything (projects, data pack, IFC files) stays in the user's browser.
+Live site: https://miko00l96.github.io/whole-building-lca/ (repository miko00l96/whole-building-lca, public; every push to
+`main` rebuilds and publishes it through `.github/workflows/deploy.yml`). Commits use Michael's GitHub no-reply address.
 
 ## Rules
 - **Engine fidelity**: `src/engine/` is a line-by-line port of the Excel formulas. Any change to `calc.ts`, `leed.ts`,
@@ -47,7 +49,7 @@ split between rows with repeated headers, no single-row remnants; soft page brea
 a page is at least 40 % full). Printing uses the same sheets, so the PDF page numbers match the contents page. The Word
 export keeps only the hard breaks (`break.word`) and lets Word number the contents (it asks to update fields on opening).
 
-## Private copy on claude.ai (until GitHub Pages is live)
+## Private copy on claude.ai (made before the site went live; not updated automatically)
 Michael's private artifact https://claude.ai/artifact/HEL2Xd3yxUrFcRG7zHVKas (republish to the same URL with `url`). Build with
 `VITE_PUBLIC_DATA=data/oekobaudat.json npx vite build --outDir <scratch>`; the page is `index.html` without doctype/html/head/body
 (title, icon, CSS link, `<div id="root">`, module script); publish every file except `*.woff` and the `.gz` (unpack it to
