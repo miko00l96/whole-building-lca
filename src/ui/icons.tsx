@@ -42,10 +42,10 @@ export const Icon = {
 export function BrandMark() {
   return (
     <svg className="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
-      <rect x="1" y="1" width="30" height="30" rx="6" fill="#2a7a4b" />
-      <path d="M8 24V12l8-5 8 5v12" fill="none" stroke="#e3efe7" strokeWidth="2" strokeLinejoin="round" />
-      <path d="M8 24h16" stroke="#e3efe7" strokeWidth="2" strokeLinecap="round" />
-      <path d="M12 24v-4M16 24v-6M20 24v-3" stroke="#7fbf96" strokeWidth="2" strokeLinecap="round" />
+      <rect x="1.5" y="1.5" width="29" height="29" rx="2" fill="none" stroke="var(--ink)" strokeWidth="1.5" />
+      <path d="M8 24V12l8-5 8 5v12" fill="none" stroke="var(--ink)" strokeWidth="1.8" strokeLinejoin="round" />
+      <path d="M8 24h16" stroke="var(--ink)" strokeWidth="1.8" strokeLinecap="round" />
+      <path d="M12 24v-4M16 24v-6M20 24v-3" stroke="var(--redline)" strokeWidth="1.8" strokeLinecap="round" />
     </svg>
   );
 }

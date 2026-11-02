@@ -23,7 +23,7 @@ export function InsightsPage() {
     <div className="page">
       <div className="page-head">
         <div className="grow">
-          <h1>Insights</h1>
+          <div className="step-label"><span className="sheet-no">B-02</span> · Studies</div><h1>Insights</h1>
           <p className="lede">Where the carbon can still come down, how sure the result is, and how it compares with published benchmarks.</p>
         </div>
         <Seg value={tab} onChange={setTab} options={[{ v: 'opps', label: 'Carbon opportunities' }, { v: 'whatif', label: 'What-if' }, { v: 'mc', label: 'Uncertainty' }, { v: 'bench', label: 'Benchmarks' }]} />

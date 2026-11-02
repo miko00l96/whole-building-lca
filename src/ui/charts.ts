@@ -5,8 +5,8 @@ import { PAL, SRC_COLOR, type EOption } from './components/Chart.tsx';
 import { shortName } from '../engine/rules.ts';
 
 const t = (kg: number) => kg / 1000;
-const axisLab = { color: PAL.ink2, fontSize: 11.5 };
-const gridLine = { lineStyle: { color: PAL.grid } };
+const axisLab = () => ({ color: PAL.ink2, fontSize: 11.5 });
+const gridLine = () => ({ lineStyle: { color: PAL.grid } });
 const fmtT = (v: number) => Math.round(v).toLocaleString('en-US');
 const LEED_SHORT = ['Global warming (GWP)', 'Ozone depletion (ODP)', 'Acidification (AP)', 'Eutrophication (EP)', 'Smog formation (POCP)', 'Non-renewable energy (ADPf)'];
 
@@ -15,8 +15,8 @@ function hbar(cats: string[], series: any[], fmt: (v: number) => string, extra: 
     grid: { left: 8, right: 56, top: 30, bottom: 8, containLabel: true },
     legend: { top: 0, left: 'center', itemWidth: 12, itemHeight: 10, textStyle: { fontSize: 12 } },
     tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, valueFormatter: (v: any) => (v == null ? '–' : fmt(Number(v))) },
-    xAxis: { type: 'value', axisLabel: { ...axisLab, formatter: (v: number) => fmt(v) }, splitLine: gridLine },
-    yAxis: { type: 'category', data: cats, inverse: true, axisTick: { show: false }, axisLine: { lineStyle: { color: PAL.axis } }, axisLabel: { ...axisLab, width: 190, overflow: 'truncate' } },
+    xAxis: { type: 'value', axisLabel: { ...axisLab(), formatter: (v: number) => fmt(v) }, splitLine: gridLine() },
+    yAxis: { type: 'category', data: cats, inverse: true, axisTick: { show: false }, axisLine: { lineStyle: { color: PAL.axis } }, axisLabel: { ...axisLab(), width: 190, overflow: 'truncate' } },
     series,
     ...extra,
   };
@@ -31,8 +31,8 @@ export function sixCategories(r: ProjectResult): EOption {
   return hbar(LEED_SHORT, [
     { name: 'Change vs baseline', type: 'bar', barWidth: '55%', data: vals.map((v) => ({ value: v, itemStyle: { color: v != null && v > 0 ? PAL.orange : PAL.greenD } })),
       label: { show: true, position: 'right', formatter: (p: any) => (p.value == null ? 'n/a' : `${(p.value * 100).toFixed(1)}%`), fontSize: 11.5, color: PAL.ink },
-      markLine: { symbol: 'none', silent: true, lineStyle: { type: 'dashed', color: '#9db7a6' }, label: { show: !wide, position: 'start', formatter: (p: any) => `${Math.round(p.value * 100)}%`, fontSize: 10.5, color: PAL.muted },
-        data: [...marks.map((m) => ({ xAxis: m })), ...(bdc ? [{ xAxis: 0.05, lineStyle: { color: '#e8a37a' } }] : [])] } },
+      markLine: { symbol: 'none', silent: true, lineStyle: { type: 'dashed', color: PAL.thr }, label: { show: !wide, position: 'start', formatter: (p: any) => `${Math.round(p.value * 100)}%`, fontSize: 10.5, color: PAL.muted },
+        data: [...marks.map((m) => ({ xAxis: m })), ...(bdc ? [{ xAxis: 0.05, lineStyle: { color: PAL.thrUp } }] : [])] } },
   ], (v) => `${(v * 100).toFixed(0)}%`, { legend: { show: false } });
 }
 
@@ -82,10 +82,10 @@ export function byStage(r: ProjectResult, designs = r.designs): EOption {
     grid: { left: 8, right: 16, top: 34, bottom: 8, containLabel: true },
     legend: { top: 0, itemWidth: 12, itemHeight: 10, textStyle: { fontSize: 12 } },
     tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, valueFormatter: (v: any) => `${fmtT(Number(v))} t CO2e` },
-    xAxis: { type: 'category', data: designs.map((d) => d.name), axisLabel: { ...axisLab, fontWeight: 'bold', color: PAL.ink }, axisLine: { lineStyle: { color: PAL.axis } } },
-    yAxis: { type: 'value', axisLabel: { ...axisLab, formatter: fmtT }, splitLine: gridLine },
+    xAxis: { type: 'category', data: designs.map((d) => d.name), axisLabel: { ...axisLab(), fontWeight: 'bold', color: PAL.ink }, axisLine: { lineStyle: { color: PAL.axis } } },
+    yAxis: { type: 'value', axisLabel: { ...axisLab(), formatter: fmtT }, splitLine: gridLine() },
     series: st.map(([k, nm], i) => ({
-      name: nm, type: 'bar', stack: 'gwp', barWidth: '42%', itemStyle: { color: PAL.ord[i], borderColor: '#fff', borderWidth: 1 },
+      name: nm, type: 'bar', stack: 'gwp', barWidth: '42%', itemStyle: { color: PAL.ord[i], borderColor: PAL.paper, borderWidth: 1 },
       data: designs.map((d) => t(d.stage[k][0])),
     })),
   };
@@ -119,12 +119,12 @@ export function sourceMix(r: ProjectResult, designs = r.designs): EOption {
     grid: { left: 8, right: 16, top: 30, bottom: 8, containLabel: true },
     legend: { top: 0, itemWidth: 12, itemHeight: 10, textStyle: { fontSize: 12 } },
     tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, valueFormatter: (v: any) => `${(Number(v) * 100).toFixed(1)}%` },
-    xAxis: { type: 'value', max: 1, axisLabel: { ...axisLab, formatter: (v: number) => `${Math.round(v * 100)}%` }, splitLine: gridLine },
-    yAxis: { type: 'category', data: designs.map((d) => d.name), inverse: true, axisLabel: { ...axisLab, fontWeight: 'bold', color: PAL.ink } },
+    xAxis: { type: 'value', max: 1, axisLabel: { ...axisLab(), formatter: (v: number) => `${Math.round(v * 100)}%` }, splitLine: gridLine() },
+    yAxis: { type: 'category', data: designs.map((d) => d.name), inverse: true, axisLabel: { ...axisLab(), fontWeight: 'bold', color: PAL.ink } },
     series: srcs.map((s) => ({
-      name: s, type: 'bar', stack: 'mix', barWidth: '50%', itemStyle: { color: SRC_COLOR[s], borderColor: '#fff', borderWidth: 1 },
+      name: s, type: 'bar', stack: 'mix', barWidth: '50%', itemStyle: { color: SRC_COLOR[s], borderColor: PAL.paper, borderWidth: 1 },
       data: designs.map((d) => d.srcShare[s]),
-      label: { show: true, formatter: (p: any) => (p.value >= 0.06 ? `${Math.round(p.value * 100)}%` : ''), color: '#fff', fontWeight: 'bold', fontSize: 11 },
+      label: { show: true, formatter: (p: any) => (p.value >= 0.06 ? `${Math.round(p.value * 100)}%` : ''), color: PAL.paper, fontWeight: 'bold', fontSize: 11 },
     })),
   };
 }
@@ -156,7 +156,7 @@ export function sankey(r: ProjectResult, d: DesignResult): EOption {
     tooltip: { trigger: 'item', valueFormatter: (v: any) => `${fmtT(Number(v))} t CO2e` },
     series: [{
       type: 'sankey', left: 8, right: 130, top: 10, bottom: 10, nodeGap: 9, nodeWidth: 12, draggable: false, emphasis: { focus: 'adjacency' },
-      data: [...names].map((n) => ({ name: n, itemStyle: { color: stageColors[n] ?? (n.endsWith(' ') ? '#7fbf96' : '#2a7a4b') } })),
+      data: [...names].map((n) => ({ name: n, itemStyle: { color: stageColors[n] ?? (n.endsWith(' ') ? PAL.node : PAL.green) } })),
       links: data, lineStyle: { color: 'gradient', opacity: 0.35, curveness: 0.5 },
       label: { fontSize: 11.5, color: PAL.ink, formatter: (p: any) => p.name.trim() },
     }],
@@ -172,10 +172,10 @@ export function treemap(r: ProjectResult, d: DesignResult): EOption {
     series: [{
       type: 'treemap', roam: false, nodeClick: false, breadcrumb: { show: false }, left: 0, right: 0, top: 0, bottom: 0,
       label: { fontSize: 11.5, overflow: 'truncate', formatter: (p: any) => `${p.name}\n${fmtT(p.value)} t` },
-      upperLabel: { show: true, height: 20, color: '#fff', fontWeight: 'bold', fontSize: 11.5 },
-      levels: [{ itemStyle: { borderColor: '#fff', borderWidth: 2, gapWidth: 2 } }, { colorSaturation: [0.35, 0.6], itemStyle: { borderColorSaturation: 0.7, gapWidth: 1, borderWidth: 1 } }],
+      upperLabel: { show: true, height: 20, color: PAL.paper, fontWeight: 'bold', fontSize: 11.5 },
+      levels: [{ itemStyle: { borderColor: PAL.paper, borderWidth: 2, gapWidth: 2 } }, { colorSaturation: [0.35, 0.6], itemStyle: { borderColorSaturation: 0.7, gapWidth: 1, borderWidth: 1 } }],
       data: [...m.entries()].map(([k, ls], i) => ({
-        name: k, value: t(ls.reduce((a, l) => a + l.tot[0], 0)), itemStyle: { color: [PAL.ord[1], PAL.green, PAL.mid, '#5d8f74', '#456b56', '#7fa58c'][i % 6] },
+        name: k, value: t(ls.reduce((a, l) => a + l.tot[0], 0)), itemStyle: { color: PAL.ramp[i % PAL.ramp.length] },
         children: ls.map((l) => ({ name: l.label || shortName(l.mat, l.src), value: t(l.tot[0]) })),
       })),
     }],
@@ -213,8 +213,8 @@ export function waterfall(r: ProjectResult, target: DesignResult = r.prop, n = 8
       const c = top[i - 1];
       return `${c.k}: <b>${c.v > 0 ? '+' : ''}${fmtT(c.v)} t</b>`;
     } },
-    xAxis: { type: 'category', data: cats, axisLabel: { ...axisLab, interval: 0, rotate: 32, width: 120, overflow: 'truncate' } },
-    yAxis: { type: 'value', axisLabel: { ...axisLab, formatter: fmtT }, splitLine: gridLine },
+    xAxis: { type: 'category', data: cats, axisLabel: { ...axisLab(), interval: 0, rotate: 32, width: 120, overflow: 'truncate' } },
+    yAxis: { type: 'value', axisLabel: { ...axisLab(), formatter: fmtT }, splitLine: gridLine() },
     series: [
       { type: 'bar', stack: 'w', itemStyle: { color: 'transparent' }, data: base, silent: true },
       { name: 'Increase / total', type: 'bar', stack: 'w', data: up.map((v, i) => ({ value: v, itemStyle: { color: i === 0 ? PAL.gray : i === cats.length - 1 ? PAL.green : PAL.orange } })) },
@@ -248,8 +248,8 @@ export function carbonOverTime(r: ProjectResult, p: Project, designs = r.designs
     grid: { left: 8, right: 20, top: 34, bottom: 8, containLabel: true },
     legend: { top: 0, itemWidth: 14, itemHeight: 8, textStyle: { fontSize: 12 } },
     tooltip: { trigger: 'axis', valueFormatter: (v: any) => `${fmtT(Number(v))} t CO2e`, axisPointer: { type: 'line' } },
-    xAxis: { type: 'category', data: years, name: 'year', nameLocation: 'end', nameTextStyle: { color: PAL.muted }, axisLabel: { ...axisLab, interval: Math.max(1, Math.round(sp / 12)) - 1 }, boundaryGap: false },
-    yAxis: { type: 'value', axisLabel: { ...axisLab, formatter: fmtT }, splitLine: gridLine, name: 't CO2e (cumulative)', nameTextStyle: { color: PAL.muted, align: 'left' } },
+    xAxis: { type: 'category', data: years, name: 'year', nameLocation: 'end', nameTextStyle: { color: PAL.muted }, axisLabel: { ...axisLab(), interval: Math.max(1, Math.round(sp / 12)) - 1 }, boundaryGap: false },
+    yAxis: { type: 'value', axisLabel: { ...axisLab(), formatter: fmtT }, splitLine: gridLine(), name: 't CO2e (cumulative)', nameTextStyle: { color: PAL.muted, align: 'left' } },
     series,
   };
 }
@@ -262,12 +262,12 @@ export function optionsBars(r: ProjectResult): EOption {
   return {
     grid: { left: 8, right: 70, top: 20, bottom: 8, containLabel: true },
     tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, valueFormatter: (v: any) => `${fmtT(Number(v))} t CO2e` },
-    xAxis: { type: 'category', data: ds.map((d) => d.name), axisLabel: { ...axisLab, fontWeight: 'bold', color: PAL.ink } },
-    yAxis: { type: 'value', axisLabel: { ...axisLab, formatter: fmtT }, splitLine: gridLine },
+    xAxis: { type: 'category', data: ds.map((d) => d.name), axisLabel: { ...axisLab(), fontWeight: 'bold', color: PAL.ink } },
+    yAxis: { type: 'value', axisLabel: { ...axisLab(), formatter: fmtT }, splitLine: gridLine() },
     series: [{
       type: 'bar', barWidth: '46%', data: ds.map((d, j) => ({ value: t(d.total[0]), itemStyle: { color: colorOf(d, j) } })),
       label: { show: true, position: 'top', fontSize: 11.5, formatter: (q: any) => { const c = (q.value - b) / b; return q.dataIndex === 0 ? fmtT(q.value) : `${fmtT(q.value)}  (${c > 0 ? '+' : ''}${(c * 100).toFixed(1)}%)`; } },
-      markLine: { symbol: 'none', silent: true, lineStyle: { type: 'dashed', color: '#9db7a6' }, label: { position: 'end', fontSize: 10.5, color: PAL.muted, formatter: (q: any) => q.name },
+      markLine: { symbol: 'none', silent: true, lineStyle: { type: 'dashed', color: PAL.thr }, label: { position: 'end', fontSize: 10.5, color: PAL.muted, formatter: (q: any) => q.name },
         data: thr.map((x) => ({ yAxis: b * (1 - x), name: `−${Math.round(x * 100)}%` })) },
     }],
   };
@@ -283,8 +283,8 @@ export function histogram(values: number[], marks: { x: number; label: string }[
   return {
     grid: { left: 8, right: 16, top: 24, bottom: 8, containLabel: true },
     tooltip: { trigger: 'axis', formatter: (ps: any[]) => `${fmt(centers[ps[0].dataIndex])}: ${ps[0].value} runs` },
-    xAxis: { type: 'category', data: centers.map((c) => fmt(c)), axisLabel: { ...axisLab, interval: Math.ceil(bins / 8) - 1 } },
-    yAxis: { type: 'value', axisLabel: axisLab, splitLine: gridLine, name: 'runs', nameTextStyle: { color: PAL.muted } },
+    xAxis: { type: 'category', data: centers.map((c) => fmt(c)), axisLabel: { ...axisLab(), interval: Math.ceil(bins / 8) - 1 } },
+    yAxis: { type: 'value', axisLabel: axisLab(), splitLine: gridLine(), name: 'runs', nameTextStyle: { color: PAL.muted } },
     series: [{
       type: 'bar', barCategoryGap: '8%', data: counts, itemStyle: { color },
       markLine: { symbol: 'none', silent: true, label: { formatter: (q: any) => q.name, fontSize: 10.5, color: PAL.ink2 }, lineStyle: { color: PAL.orange, type: 'dashed' },

@@ -1,0 +1,8 @@
+/* IFC quantity take-off window (BOQ step) */
+.ifc-drop { border: 1.5px dashed var(--rule-firm); border-radius: var(--r); background: var(--inset); padding: 36px 28px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.ifc-drop.over { border-color: var(--redline); background: var(--redline-wash); }
+.ifc-drop ul { text-align: left; margin: 8px 0 0; padding-left: 18px; color: var(--ink-2); font-size: 13.5px; max-width: 680px; }
+.ifc-bar { width: 280px; height: 4px; background: var(--rule); overflow: hidden; }
+.ifc-bar i { display: block; height: 100%; background: var(--redline); transition: width 0.2s; }
+.ifc-tbl tr.out td { opacity: 0.6; }
+.ifc-ttl { font-weight: 600; line-height: 1.25; overflow-wrap: anywhere; }

@@ -1,15 +1,74 @@
+import { useMemo, type ReactNode } from 'react';
 import { useApp } from '../../state/store.ts';
 import { IND_NAME, IND_UNIT, EP_NAME } from '../../engine/rules.ts';
 import { epDrivers } from '../../engine/text.ts';
+import { targets, type Standard } from '../../engine/targets.ts';
+import type { ProjectResult } from '../../engine/calc.ts';
 import { fmt, sig, chg, pct } from '../format.ts';
-import type { Stage } from '../../engine/types.ts';
+import type { Project, Stage } from '../../engine/types.ts';
+import { Chart } from '../components/Chart.tsx';
+import * as C from '../charts.ts';
 
 const STAGES: [Stage, string][] = [['A13', 'A1–A3'], ['A4', 'A4'], ['B45', 'B4–B5'], ['C14', 'C1–C4']];
 const nf = (v: number, i: number) => (i === 1 || i === 3 ? (v === 0 ? '0' : v.toExponential(3).replace('e', 'E')) : i === 0 || i === 7 ? fmt(v, 0) : fmt(v, 2));
 
+
+const NUM = ['No', 'One', 'Two', 'Three', 'Four', 'Five', 'Six'];
+const V = ({ children, tone }: { children: ReactNode; tone?: 'down' | 'up' }) => <span className={`v ${tone ?? ''}`}>{children}</span>;
+
+/** The result in one paragraph, figures set in mono (Shoebox's written summary). */
+function Narrative({ p, r, stds }: { p: Project; r: ProjectResult; stds: Standard[] }) {
+  const s = p.setup, L = r.leed, idc = r.sys.sys === 'ID+C';
+  const area = s.area ?? 0, base = r.base.total[0], prop = r.prop.total[0];
+  const use = (s.buildingUse || (idc ? 'interior fit-out' : 'building')).toLowerCase();
+  const art = /^[aeiou]/.test(use) ? 'An' : 'A';
+  const out: ReactNode[] = [];
+  out.push(<span key="a">{art} {use}{area ? <> of <V>{fmt(area)}</V> m²</> : null}{s.location ? ` in ${s.location}` : ''}, compared over a <V>{r.sp}</V>-year study period on <V>{p.boq.length}</V> BOQ line{p.boq.length === 1 ? '' : 's'}. </span>);
+  if (base > 0 && prop > 0) {
+    const ch = L.change[0] ?? 0;
+    out.push(<span key="b">The proposed design embodies <V>{fmt(prop / 1000)}</V> t CO2e{area ? <> (<V>{fmt(prop / area)}</V> kg/m²)</> : null} against <V>{fmt(base / 1000)}</V> t for the baseline: <V tone={ch < 0 ? 'down' : 'up'}>{Math.abs(ch * 100).toFixed(1)}%</V> {ch < 0 ? 'less' : 'more'}. </span>);
+    const n10 = L.red10, n5 = L.red5;
+    const some = (k: number, of: number, all: string, part: string) => `${k === of ? all : k === 0 ? `None of ${part}` : `${NUM[k]} of ${part}`} ${k === 1 ? 'falls' : 'fall'}`;
+    if (idc) out.push(<span key="c">{some(L.other10, 5, 'All five other categories', 'the other five categories')} by 10% or more and <V>{L.higherCount}</V> {L.higherCount === 1 ? 'is' : 'are'} higher than the baseline. </span>);
+    else out.push(<span key="c">{some(n10 >= 3 ? n10 : n5, 6, 'All six LEED categories', 'the six LEED categories')} by {n10 >= 3 ? '10' : '5'}% or more{L.maxIncrease != null && L.maxIncrease > 0.05 ? <>, but one rises by <V tone="up">{(L.maxIncrease * 100).toFixed(1)}%</V></> : ' and none rises by more than 5%'}. </span>);
+    const leedStd = stds.filter((x) => x.kind === 'leed' && x.gwp != null);
+    const next = leedStd.find((x) => !x.met && Number.parseInt(x.points) > L.points);
+    const missing = next ? next.rows.filter((x) => x.ok === false).map((x) => x.label === 'GWP reduction' ? `${x.margin.replace(' to go', '').split(' · ')[1] ?? ''} CO2e more off`
+      : x.label.startsWith('Reused') ? 'reused or salvaged materials' : x.label.startsWith('Largest') ? 'no category up more than 5%' : x.label.startsWith('Study') ? `a study period of at least ${r.sys.minSp} years`
+      : x.label.startsWith('Categories higher') ? 'at most one category higher' : `${Number.parseInt(x.asks) - Number.parseInt(x.reads)} more ${x.label.toLowerCase().replace(', gwp among them', '')}`) : [];
+    const and = (a: string[]) => (a.length <= 1 ? a.join('') : `${a.slice(0, -1).join(', ')} and ${a[a.length - 1]}`);
+    out.push(<span key="d">{L.points > 0 ? <>That meets <V>{L.pathLabel}</V> of {r.sys.label} (<V>{L.points}</V> point{L.points === 1 ? '' : 's'}, indicative)</> : <>No LEED path is met yet</>}
+      {next && missing.length ? <>; {next.name.split(' · ')[0]} would need {and(missing)}.</> : L.points > 0 ? '; it is the highest path for this credit.' : '.'}</span>);
+  } else {
+    out.push(<span key="b">Choose a material for every line of both designs to compare them.</span>);
+  }
+  return <p className="narrative">{out}</p>;
+}
+
+function Std({ s, chased, onChase }: { s: Standard; chased: boolean; onChase: () => void }) {
+  return (
+    <div className={`std ${chased ? 'chased' : ''}`}>
+      <div className="std-head">
+        <span className="nm">{s.name}</span><span className="pts">{s.points}</span>
+        <span className={`std-state ${s.met ? 'met' : 'not'}`}>{s.kind === 'bench' ? (s.met ? 'within' : 'above') : s.met ? 'met' : 'not met'}</span>
+        <button className={`btn xs chase-btn ${chased ? 'on' : ''}`} onClick={onChase} title={chased ? 'Release' : 'Pin this standard to the title bar'}>{chased ? 'Chasing' : 'Chase'}</button>
+      </div>
+      {s.note && <div className="std-note">{s.note}</div>}
+      <table>
+        <thead><tr><th>Criterion</th><th>Asks for</th><th>Reads</th><th>Margin</th></tr></thead>
+        <tbody>{s.rows.map((x, k) => (
+          <tr key={k}><td>{x.label}</td><td>{x.asks}</td><td className={x.ok == null ? '' : x.ok ? 'ok' : 'no'}>{x.reads}</td><td className={x.ok === false ? 'no' : ''}>{x.margin || (x.ok ? '✓' : '')}</td></tr>
+        ))}</tbody>
+      </table>
+    </div>
+  );
+}
+
 export function ResultsPage() {
-  const { project, result } = useApp();
-  if (!project || !result) return null;
+  const { project, result, chase, setChase } = useApp();
+  const stds = useMemo(() => (project && result ? targets(result, project.setup.area ?? 0) : []), [project, result]);
+  const six = useMemo(() => (result ? C.sixCategories(result) : null), [result]);
+  if (!project || !result || !six) return null;
   const { base, prop, leed, sys } = result;
   const area = project.setup.area ?? 0;
   const ep = epDrivers(result, project);
@@ -38,12 +97,52 @@ export function ResultsPage() {
     <div className="page">
       <div className="page-head">
         <div className="grow">
-          <div className="step-label">Step 4 of 5</div>
+          <div className="step-label"><span className="sheet-no">A-04</span> · Step 4 of 5</div>
           <h1>Results</h1>
-          <p className="lede">{project.setup.projectName} · {sys.cover} · {sys.sys === 'ID+C' ? 'floor area' : 'GFA'} {fmt(area)} m² · study period {result.sp} years · EN 15804+A2 indicators.</p>
+          <p className="lede">{sys.cover} · {sys.sys === 'ID+C' ? 'floor area' : 'GFA'} {fmt(area)} m² · study period {result.sp} years · EN 15804+A2 indicators, A1–C4.</p>
+        </div>
+      </div>
+      <Narrative p={project} r={result} stds={stds} />
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1.1fr)', gap: 22, alignItems: 'start' }}>
+        <div>
+          <Chart option={six} height={280} />
+          <div className="fig-cap"><b>Fig. 1</b>Change against the baseline in the six LEED impact categories. Dashed lines: the LEED thresholds.</div>
+        </div>
+        <div className="panel">
+          <div className="sec-band">Schedule · six LEED impact categories</div>
+          <table className="tbl">
+            <thead><tr><th>LEED category</th><th>Indicator</th><th className="num">Baseline</th><th className="num">Proposed</th><th className="num">Change</th><th>Plausibility</th></tr></thead>
+            <tbody>
+              {leed.six.map((x, k) => {
+                const bad = x.change != null && (sys.sys === 'BD+C' ? x.change > 0.05 : x.change > 0 && leed.higherCount > 1);
+                const amber = x.change != null && sys.sys === 'ID+C' && x.change > 0 && leed.higherCount <= 1;
+                return (
+                  <tr key={x.name}>
+                    <td>{x.name}</td><td className="xs ink2">{x.ind}</td>
+                    <td className="num">{nf(x.base, k === 1 ? 1 : 2)}</td><td className="num">{nf(x.prop, k === 1 ? 1 : 2)}</td>
+                    <td className="num" style={{ color: bad ? 'var(--bad)' : amber ? 'var(--warn)' : (x.change ?? 0) < 0 ? 'var(--good)' : undefined }}>{chg(x.change)}</td>
+                    <td><span className={`chip ${x.plaus.startsWith('atypical') ? 'red' : x.plaus.startsWith('large') ? 'amber' : 'green'}`}>{x.plaus || '–'}</span></td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+          <div className="panel-body help">Tropospheric ozone reported as POCP (kg NMVOC eq), non-renewable energy as ADP-fossil (MJ): state this in the credit narrative. Explain any change of 50% or more; reviewers have asked for a narrative or a revised analysis when a reduction was above 70%.</div>
         </div>
       </div>
 
+      <div className="sheet-sec"><h2>The targets</h2><span className="help">What each LEED path asks of the proposed design, against what this calculation reads. Chase one to pin it to the title bar; the ghost marker shows where the result was before your last change.</span></div>
+      <div className={`note ${base.qaCount + prop.qaCount ? 'warn' : 'good'}`} style={{ marginBottom: 12 }}>{leed.status}</div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(520px, 100%), 1fr))', gap: '0 14px' }}>
+        {stds.filter((x) => x.kind === 'leed').map((x) => <Std key={x.id} s={x} chased={chase === x.id} onChase={() => setChase(chase === x.id ? null : x.id)} />)}
+      </div>
+      <div className="sheet-sec"><h2>For context · published benchmarks</h2><span className="help">Intensity of the proposed design (A1–C4, kg CO2e per m²). These benchmarks cover the whole building and other stages, so a LEED result normally sits lower.</span></div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(520px, 100%), 1fr))', gap: '0 14px' }}>
+        {stds.filter((x) => x.kind === 'bench').map((x) => <Std key={x.id} s={x} chased={chase === x.id} onChase={() => setChase(chase === x.id ? null : x.id)} />)}
+      </div>
+
+      <div className="sheet-sec"><h2>Results schedule · all EN 15804+A2 indicators by stage</h2></div>
       <div className="tbl-wrap" style={{ marginBottom: 18 }}>
         <table className="tbl">
           <thead>
@@ -69,45 +168,8 @@ export function ResultsPage() {
         </table>
       </div>
 
+      <div className="sheet-sec"><h2>Schedule of checks</h2></div>
       <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1.25fr)', gap: 18 }}>
-        <div className="panel">
-          <div className="sec-band">{sys.sys === 'ID+C' ? 'LEED v4.1 ID+C Option 3 (building interiors LCA)' : 'LEED v4.1 BD+C Option 2 (v4: Option 4)'} – six impact categories</div>
-          <table className="tbl">
-            <thead><tr><th>LEED category</th><th>Indicator</th><th className="num">Baseline</th><th className="num">Proposed</th><th className="num">Change</th><th>Plausibility</th></tr></thead>
-            <tbody>
-              {leed.six.map((x, k) => {
-                const bad = x.change != null && (sys.sys === 'BD+C' ? x.change > 0.05 : x.change > 0 && leed.higherCount > 1);
-                const amber = x.change != null && sys.sys === 'ID+C' && x.change > 0 && leed.higherCount <= 1;
-                return (
-                  <tr key={x.name}>
-                    <td><b>{x.name}</b></td><td className="xs ink2">{x.ind}</td>
-                    <td className="num">{nf(x.base, k === 1 ? 1 : 2)}</td><td className="num">{nf(x.prop, k === 1 ? 1 : 2)}</td>
-                    <td className="num" style={{ fontWeight: 700, color: bad ? 'var(--bad)' : amber ? 'var(--warn)' : (x.change ?? 0) < 0 ? 'var(--good)' : undefined, background: bad ? 'var(--bad-bg)' : amber ? 'var(--warn-bg)' : (x.change ?? 0) <= -0.1 ? 'var(--good-bg)' : undefined }}>{chg(x.change)}</td>
-                    <td><span className={`chip ${x.plaus.startsWith('atypical') ? 'red' : x.plaus.startsWith('large') ? 'amber' : 'green'}`}>{x.plaus || '–'}</span></td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-          <div className="panel-body help">Tropospheric ozone reported as POCP (kg NMVOC eq), non-renewable energy as ADP-fossil (MJ): state this in the credit narrative. Explain any change of 50% or more; reviewers have asked for a narrative or a revised analysis when a reduction was above 70%.</div>
-        </div>
-
-        <div className="panel">
-          <div className="sec-band">{sys.label} {sys.opt} – compliance paths (indicative)</div>
-          {leed.paths.map((p) => (
-            <div key={p.label} className={`path-row ${p.met ? 'met' : ''}`}>
-              <b>{p.label}</b><span className="num">{p.points}</span><span className="small">{p.requirement}</span>
-              <span className={`path-met ${p.met ? 'yes' : 'no'}`}>{p.met ? '✓ met' : '✗ not met'}</span>
-            </div>
-          ))}
-          <div className="panel-body">
-            <div className="row"><b>Indicative points</b><span className="good" style={{ fontWeight: 700, fontSize: 16 }}>{sys.sys === 'ID+C' ? `${leed.ptsIdc} (v4.1 Option 3)` : `${leed.ptsBdc41} (v4.1)  |  ${leed.ptsBdc4} (v4)`}</span></div>
-            <div className={`note ${base.qaCount + prop.qaCount ? 'warn' : 'good'}`} style={{ marginTop: 8 }}>{leed.status}</div>
-          </div>
-        </div>
-      </div>
-
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1.25fr)', gap: 18, marginTop: 18 }}>
         <div className="panel">
           <div className="sec-band">Checks</div>
           <table className="tbl compact"><tbody>{checks.map(([k, v]) => <tr key={k}><td className="small">{k}</td><td className="num" style={{ fontWeight: 700 }}>{v}</td></tr>)}</tbody></table>

@@ -69,9 +69,9 @@ export function DesignsPage() {
     <div className="page">
       <div className="page-head">
         <div className="grow">
-          <div className="step-label">Step 3 of 5</div>
+          <div className="step-label"><span className="sheet-no">A-03</span> · Step 3 of 5</div>
           <h1>Designs</h1>
-          <p className="lede">Choose a material for every line in each design. Lines follow the BOQ (green italics); type over a value to change it for one design only. Point at any product name to see its EPD or dataset card.</p>
+          <p className="lede">Choose a material for every line in each design. Values in italics come from the BOQ; type over a value to change it for one design only. Point at any product name to see its EPD or dataset card.</p>
         </div>
       </div>
       <div className="row wrap" style={{ marginBottom: 12, gap: 6 }}>
@@ -109,7 +109,7 @@ export function DesignsPage() {
           : { lab: 'Change vs baseline', val: chg(ch), tone: (ch ?? 0) < 0 ? 'good' : (ch ?? 0) > 0 ? 'bad' : '', sub: `${signed((dr.total[0] - base.total[0]) / 1000)} t CO2e · LEED needs ${sys.sys === 'ID+C' ? '≥20% (Path 3)' : '≥5–10%'}` },
         { lab: `${sys.ptsLabel} (indicative)`, val: `${leed.points} points`, sub: sys.sys === 'ID+C' ? `GWP ${chg(leed.change[0])} · ${leed.other10} other ≥10% lower` : `${leed.red5} of 6 categories ≥5% lower · ${leed.red10} ≥10%` },
         { lab: 'EPD share of GWP', val: pct(dr.srcShare.EPD, 0), sub: 'product-specific EPD data' },
-        { lab: 'Data quality', val: <span>{dr.okCount} ✓ &nbsp; <span className={dr.qaCount ? 'warn' : ''}>{dr.qaCount} ⚠</span>{dr.infoCount ? <> &nbsp; <span style={{ color: 'var(--blue)' }}>{dr.infoCount} ℹ</span></> : null}</span>, sub: 'lines with QA notes are listed in the QA column' },
+        { lab: 'Data quality', val: <span>{dr.okCount}<span className="t-sym">✓</span><span className={dr.qaCount ? 'warn' : ''}>{dr.qaCount}<span className="t-sym">⚠</span></span>{dr.infoCount ? <span style={{ color: 'var(--blue)' }}>{dr.infoCount}<span className="t-sym">ℹ</span></span> : null}</span>, sub: 'lines with QA notes are listed in the QA column' },
         { lab: 'Top hotspot', val: <span style={{ fontSize: 16 }}>{top ? top.label : '–'}</span>, sub: top ? `${tco2(top.tot[0])} t CO2e · ${pct(top.tot[0] / (dr.total[0] || 1), 0)} of total` : '' },
       ]} />
 

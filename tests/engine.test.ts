@@ -91,3 +91,20 @@ describe('like-for-like alternatives', () => {
     expect(comparable('Rock wool panel insulation', 'Insulation', ds('glass wool mat, uncoated'))).toBe(true);
   });
 });
+
+import { projectFromHash, projectLink } from '../src/state/share.ts';
+describe('project links', () => {
+  it('carry the project without the people and open as a new project', async () => {
+    (globalThis as any).location = { origin: 'https://example.org', pathname: '/whole-building-lca/' };
+    const p = publicDemo();
+    p.setup.client = 'Client name';
+    const url = await projectLink(p);
+    expect(url.startsWith('https://example.org/whole-building-lca/#p=')).toBe(true);
+    const q = await projectFromHash(url.slice(url.indexOf('#')));
+    expect(q).not.toBeNull();
+    expect(q!.id).not.toBe(p.id);
+    expect(q!.setup.client).toBe('');
+    expect(q!.boq.length).toBe(p.boq.length);
+    expect(computeProject(q!, lib, '2026-11-02').prop.total[0]).toBeCloseTo(computeProject(p, lib, '2026-11-02').prop.total[0], 6);
+  });
+});

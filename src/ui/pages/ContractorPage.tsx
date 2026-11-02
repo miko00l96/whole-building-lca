@@ -15,7 +15,7 @@ export function ContractorPage() {
     <div className="page">
       <div className="page-head">
         <div className="grow">
-          <h1>Recommendations for the contractor</h1>
+          <div className="step-label"><span className="sheet-no">B-03</span> · For the site</div><h1>Recommendations for the contractor</h1>
           <p className="lede">For the project team and the contractor; not part of the LEED submission. The materials below carry the LEED result, so substitutions need the LCA consultant's check first.</p>
         </div>
         <button className="btn" onClick={() => window.print()}><Icon.print /> Print this page</button>

@@ -27,7 +27,7 @@ export function DataPage() {
   };
   return (
     <div className="page narrow">
-      <div className="page-head"><div className="grow"><h1>Data and libraries</h1>
+      <div className="page-head"><div className="grow"><div className="step-label"><span className="sheet-no">C-02</span> · Libraries</div><h1>Data and libraries</h1>
         <p className="lede">This app runs entirely in your browser. Projects and data packs are stored on this computer only (browser storage) and are never uploaded.</p></div></div>
       <div className="panel" style={{ marginBottom: 16 }}>
         <div className="sec-band">Libraries loaded in this browser</div>

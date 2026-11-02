@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { useApp } from '../../state/store.ts';
 import { BOQ_UNITS, densityFor, leedSys, shortName } from '../../engine/rules.ts';
 import { newBoqLine } from '../../state/project.ts';
@@ -8,11 +8,14 @@ import { DsName } from '../components/DatasetCard.tsx';
 import { Icon } from '../icons.tsx';
 import { tco2, signed } from '../format.ts';
 import { BoqImport } from './BoqImport.tsx';
+
+const IfcImport = lazy(() => import('./IfcImport.tsx'));
 import type { BoqLine } from '../../engine/types.ts';
 
 export function BoqPage() {
   const { project, result, commit, go, setDesignTab, select, toast } = useApp();
   const [imp, setImp] = useState(false);
+  const [ifc, setIfc] = useState(false);
   if (!project || !result) return null;
   const sys = leedSys(project.setup.system);
   const upd = (id: string, patch: Partial<BoqLine>) => commit((p) => { const b = p.boq.find((x) => x.id === id); if (b) Object.assign(b, patch); });
@@ -34,13 +37,13 @@ export function BoqPage() {
     <div className="page">
       <div className="page-head">
         <div className="grow">
-          <div className="step-label">Step 2 of 5</div>
+          <div className="step-label"><span className="sheet-no">A-02</span> · Step 2 of 5</div>
           <h1>Bill of quantities</h1>
           <p className="lede">Enter every item once: element, description, quantity and unit, service life and A4 distance. Both designs use these lines; you only choose the material for each design. Quantities convert automatically (t ↔ kg directly, other units through kg per unit).</p>
         </div>
         <div className="row">
           <button className="btn" onClick={() => setImp(true)}><Icon.upload /> Import Excel / CSV</button>
-          <button className="btn" onClick={() => go('model')}><Icon.model /> Import from IFC</button>
+          <button className="btn" onClick={() => setIfc(true)}><Icon.model /> Quantities from IFC</button>
           <Menu label={<><Icon.dots /> More</>} items={[
             { label: 'Estimate kg per unit for m3 lines (typical densities)', onClick: estimate },
             { label: 'Clear all BOQ lines', danger: true, onClick: () => { if (confirm('Remove every BOQ line and its material choices?')) commit((p) => { p.boq = []; for (const d of p.designs) d.choices = {}; }); } },
@@ -55,7 +58,7 @@ export function BoqPage() {
           <div className="row" style={{ justifyContent: 'center', marginTop: 10 }}>
             <button className="btn primary" onClick={add}><Icon.plus /> Add the first line</button>
             <button className="btn" onClick={() => setImp(true)}><Icon.upload /> Import Excel / CSV</button>
-            <button className="btn" onClick={() => go('model')}><Icon.model /> Import from IFC</button>
+            <button className="btn" onClick={() => setIfc(true)}><Icon.model /> Quantities from IFC</button>
           </div>
         </div>
       ) : (
@@ -95,7 +98,7 @@ export function BoqPage() {
                       </select>
                     </td>
                     <td><TextInput value={b.item} onCommit={(v) => upd(b.id, { item: v })} placeholder="e.g. Raft concrete C40" /></td>
-                    <td style={{ width: 110 }}><NumInput value={b.qty} onCommit={(v) => upd(b.id, { qty: v })} /></td>
+                    <td style={{ width: 124 }}><NumInput value={b.qty} onCommit={(v) => upd(b.id, { qty: v })} /></td>
                     <td style={{ width: 82 }}>
                       <select className="inp" value={b.unit} onChange={(e) => upd(b.id, { unit: e.target.value })}>
                         {!BOQ_UNITS.includes(b.unit) && <option>{b.unit}</option>}
@@ -141,9 +144,10 @@ export function BoqPage() {
         </div>
       )}
       <p className="help" style={{ marginTop: 10 }}>
-        Line numbers match the design lines (BOQ line 5 = line 5 in every design). On each design, values taken from this sheet show in green italics; type over a cell there to change it for that design only. {shortName('', '')}
+        Line numbers match the design lines (BOQ line 5 = line 5 in every design). On each design, values taken from this sheet show in italics; type over a cell there to change it for that design only. {shortName('', '')}
       </p>
       {imp && <BoqImport onClose={() => setImp(false)} />}
+      {ifc && <Suspense fallback={null}><IfcImport onClose={() => setIfc(false)} /></Suspense>}
     </div>
   );
 }

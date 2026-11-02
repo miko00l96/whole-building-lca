@@ -30,8 +30,8 @@ export function StartPage() {
     <div className="start">
       <div className="start-hero">
         <div>
-          <h1>Embodied carbon for LEED, from BOQ to submission report.</h1>
-          <p className="lede">Baseline against proposed, line by line, with EN 15804+A2 indicators. BD+C whole-building LCA (v4.1 Option 2, v4 Option 4) and ID+C v4.1 interiors LCA. Everything runs in this browser.</p>
+          <div className="step-label">Projects</div>
+          <p className="narrative" style={{ marginTop: 6 }}>Enter the bill of quantities once, choose a material for each line of the <b>baseline</b> and the <b>proposed</b> design, and read the LEED result as you go: every edit recalculates both designs with EN 15804+A2 indicators. The model, the data and the results never leave this browser.</p>
           {project && <button className="btn primary" style={{ marginTop: 16 }} onClick={() => useApp.getState().go('designs')}>Back to {project.setup.projectName}</button>}
         </div>
         <div className="panel">

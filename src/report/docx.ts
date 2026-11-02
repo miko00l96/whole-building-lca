@@ -7,7 +7,7 @@ import {
   type IBorderOptions, type ParagraphChild,
 } from 'docx';
 import type { Block, Cell, ReportMeta } from './model.ts';
-import { chartPng } from '../ui/components/Chart.tsx';
+import { chartPng, withPaper } from '../ui/components/Chart.tsx';
 import { figure1Png, FIG_H, FIG_W } from './Figure1.tsx';
 import { tocEntries } from './ReportView.tsx';
 
@@ -209,7 +209,7 @@ export async function exportDocx(blocks: Block[], meta: ReportMeta): Promise<Blo
         para([], { spacing: { after: 60 } });
         break;
       case 'chart': {
-        const png = await chartPng(b.option, 642, b.h);
+        const png = await withPaper(() => chartPng(b.option, 642, b.h));
         para([run(b.title, { bold: true, size: 19, color: C.dark })], { keepNext: true, spacing: { before: 120, after: 40 } });
         para([new ImageRun({ type: 'png', data: bytes(png), transformation: { width: PX, height: Math.round((b.h * PX) / 642) } })], { spacing: { after: 120 } });
         break;

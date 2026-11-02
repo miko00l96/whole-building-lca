@@ -1,8 +1,9 @@
-import { lazy, Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { Shell } from './ui/Shell.tsx';
 import { useApp } from './state/store.ts';
 import { loadPublic, restorePack } from './data/libraryStore.ts';
 import { lastProjectId, loadProjectLocal } from './state/project.ts';
+import { projectFromHash } from './state/share.ts';
 import { StartPage } from './ui/pages/StartPage.tsx';
 import { SetupPage } from './ui/pages/SetupPage.tsx';
 import { BoqPage } from './ui/pages/BoqPage.tsx';
@@ -15,7 +16,6 @@ import { FinderPage } from './ui/pages/FinderPage.tsx';
 import { DataPage } from './ui/pages/DataPage.tsx';
 import { ReportPage } from './ui/pages/ReportPage.tsx';
 
-const ModelPage = lazy(() => import('./ui/pages/ModelPage.tsx'));
 
 export function App() {
   const { page, project, recompute, openProject } = useApp();
@@ -29,10 +29,18 @@ export function App() {
         setErr(String(e?.message ?? e));
       }
       await restorePack();
-      const id = await lastProjectId();
-      const p = id ? await loadProjectLocal(id) : null;
-      if (p) openProject(p, p.boq.length ? 'designs' : 'setup');
-      else recompute();
+      let shared = null;
+      try { shared = await projectFromHash(location.hash); } catch { /* not a project link */ }
+      if (shared) {
+        history.replaceState(null, '', location.pathname + location.search);
+        openProject(shared, 'results');
+        useApp.getState().toast('Opened a shared project as a new project in this browser.');
+      } else {
+        const id = await lastProjectId();
+        const p = id ? await loadProjectLocal(id) : null;
+        if (p) openProject(p, p.boq.length ? 'designs' : 'setup');
+        else recompute();
+      }
       setReady(true);
     })();
   }, []);
@@ -49,7 +57,6 @@ export function App() {
         {pg === 'results' && <ResultsPage />}
         {pg === 'dashboard' && <DashboardPage />}
         {pg === 'insights' && <InsightsPage />}
-        {pg === 'model' && <ModelPage />}
         {pg === 'report' && <ReportPage />}
         {pg === 'contractor' && <ContractorPage />}
         {pg === 'finder' && <FinderPage />}

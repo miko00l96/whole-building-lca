@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useApp, type Page } from '../../state/store.ts';
 import { buildReport, reportMeta } from '../../report/model.ts';
 import { ReportView, type Paged } from '../../report/ReportView.tsx';
+import { withPaper } from '../components/Chart.tsx';
 import { downloadBlob, pickFile } from '../../state/project.ts';
 import { Icon } from '../icons.tsx';
 
@@ -26,7 +27,7 @@ export function ReportPage() {
   const [withOptions, setWithOptions] = useState(true);
   const [busy, setBusy] = useState(false);
   const [paged, setPaged] = useState<Paged | null>(null);
-  const blocks = useMemo(() => (project && result ? buildReport(project, result, { appendixOptions: withOptions }) : []), [project, result, withOptions]);
+  const blocks = useMemo(() => (project && result ? withPaper(() => buildReport(project, result, { appendixOptions: withOptions })) : []), [project, result, withOptions]);
   const meta = useMemo(() => (project && result ? reportMeta(project, result) : null), [project, result]);
   useEffect(() => {
     if (!meta) return;
@@ -84,7 +85,7 @@ export function ReportPage() {
       <div className="rpt-toolbar no-print">
         <div className="page-head" style={{ marginBottom: 10 }}>
           <div className="grow">
-            <div className="step-label">Step 5</div>
+            <div className="step-label"><span className="sheet-no">A-05</span> · Step 5 of 5</div>
             <h1>LEED report</h1>
             <p className="lede">The submission report, page by page as it prints. Save it as PDF from the print dialog, or export an editable Word file.</p>
           </div>

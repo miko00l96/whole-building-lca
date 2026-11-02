@@ -42,7 +42,7 @@ export function FinderPage() {
     <div className="page">
       <div className="page-head">
         <div className="grow">
-          <h1>Material finder</h1>
+          <div className="step-label"><span className="sheet-no">C-01</span> · Libraries</div><h1>Material finder</h1>
           <p className="lede">One search across every library in this browser, lowest carbon first. Results compare GWP A1–A3 per declared unit and per kg.</p>
         </div>
       </div>
@@ -67,7 +67,7 @@ export function FinderPage() {
           </div>
         )}
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 420px', gap: 14 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 380px', gap: 14 }}>
         <div className="tbl-wrap" style={{ maxHeight: 'calc(100vh - 300px)' }}>
           <table className="tbl">
             <thead><tr><th>#</th><th>Source</th><th>Material / product</th><th>Class</th><th>Unit</th><th className="num">kg/unit</th><th className="num">GWP A1–A3 /unit</th><th className="num">/kg</th><th>Country</th><th>Valid until</th>{project && <th />}</tr></thead>
@@ -78,7 +78,7 @@ export function FinderPage() {
                 return (
                   <tr key={d.src + d.n} className={sel === d ? 'sel' : ''} onMouseEnter={() => setSel(d)} onClick={() => setSel(d)}>
                     <td className="idx">{i + 1}</td><td><SrcBadge src={d.src} /></td>
-                    <td className={`small ${d.n.startsWith('CHECK') ? 'warn' : ''}`} style={{ maxWidth: 420 }}>{d.n}</td>
+                    <td className={`small ${d.n.startsWith('CHECK') ? 'warn' : ''}`} style={{ minWidth: 280, maxWidth: 440 }}>{d.n}</td>
                     <td className="xs ink2">{d.cls}</td><td>{d.u}</td><td className="num">{kg ? sig(kg) : ''}</td>
                     <td className="num">{sig(d.a[0])}</td><td className="num"><b>{kg ? sig((d.a[0] ?? 0) / kg) : ''}</b></td>
                     <td>{d.geo}</td><td className={`xs ${isExpired(d) ? 'bad' : ''}`}>{v ? dateFmt(v) : ''}</td>

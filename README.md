@@ -19,11 +19,13 @@ QA notes, LEED changes, paths, points and report figures) agree.
 | What-if | Sliders for A1–A3 impacts by material class, transport distances and service lives, with the LEED points they would give |
 | Uncertainty | Monte Carlo simulation of quantities, data and service lives: the probability of reaching each LEED threshold, and a tornado chart of the lines that matter most |
 | Benchmarks | kg CO2e/m² against published targets (LETI, RIBA 2030 Climate Challenge) |
-| BIM (IFC) import | Quantities from an IFC2x3 or IFC4 model into the BOQ, grouped by class, type and material, with element category and LEED scope suggested; quantities update when the model changes |
-| 3D carbon view | The model coloured by embodied carbon, change against the baseline, element category, data source or take-off status |
+| Written result | The result in one paragraph with its figures, and what the next LEED path still needs |
+| Targets to chase | Every LEED path (and LETI / RIBA benchmarks for context) as criteria with *asks for*, *reads* and *margin*; Chase pins one to the title bar, with a ghost marker of the result before the last change |
+| Project links | Copy a link that carries the whole project (BOQ and materials, not the people's names); opening it creates a copy in that browser |
+| IFC quantities | Quantities from an IFC2x3 or IFC4 model into the BOQ (BOQ step), grouped by class, type and material, with element category, unit and LEED scope suggested; multi-layer walls can be split per layer; quantities update when the model changes |
 | Product cards | Point at any material name to see its EPD or dataset card: programme, registration number, validity, declared unit, indicators |
 | Report | The LEED report as A4 pages, ready to print or save as PDF, and as an editable Word file; no limit on BOQ lines |
-| Undo and the change line | Every edit recalculates both designs; the line under the title bar shows what the last change added or removed |
+| Undo and the change line | Every edit recalculates both designs; the general notes under the title block show what the last change added or removed, and how long the recalculation took |
 
 ## Data
 
@@ -44,6 +46,11 @@ Without the data pack the app works with ÖKOBAUDAT only, and the start page off
 Open the published site, then: Projects > start a project (or open the example) > Setup > BOQ (type, paste, import an
 Excel/CSV file or take quantities from an IFC model) > Designs (choose a material per line for each design) > Results >
 Report. Everything runs locally in the browser.
+
+The interface is laid out like a drawing set (after [Shoebox](https://shoebox.idfkit.com/)): a title block with the LEED
+target ruler, general notes, a run-log rail and numbered sheets and figures, in IBM Plex. It follows the system's light or
+dark setting, or the Auto / Light / Dark switch at the foot of the rail. The report itself stays a white A4 document in
+Calibri, ready to submit.
 
 ## Development
 
@@ -70,7 +77,8 @@ Pages > Source: GitHub Actions).
 
 ## Third-party software
 
-React (MIT), Vite (MIT), Apache ECharts (Apache-2.0), three.js (MIT), web-ifc (MPL-2.0), docx (MIT), zustand (MIT),
-MiniSearch (MIT), Floating UI (MIT), idb-keyval (Apache-2.0), read-excel-file (MIT), Carlito font (SIL OFL 1.1).
+React (MIT), Vite (MIT), Apache ECharts (Apache-2.0), web-ifc (MPL-2.0), docx (MIT), zustand (MIT), MiniSearch (MIT),
+Floating UI (MIT), idb-keyval (Apache-2.0), read-excel-file (MIT), IBM Plex Sans / Sans Condensed / Mono and Carlito fonts
+(SIL OFL 1.1).
 
 Results are indicative until GBCI review. The tool does not replace the professional judgement of the LCA practitioner.

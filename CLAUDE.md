@@ -5,7 +5,7 @@ programmer: Claude writes, runs and checks everything; Michael reviews the resul
 
 ## What this is
 The browser version of the *Whole building LCA* Excel tool (v7.1): LEED BD+C v4.1 Option 2 / v4 Option 4 whole-building LCA
-and ID+C v4.1 Option 3 interiors LCA. React 19 + Vite 8 + TypeScript, ECharts, three.js + web-ifc, docx. Static site on
+and ID+C v4.1 Option 3 interiors LCA. React 19 + Vite 8 + TypeScript, ECharts, web-ifc (IFC quantities, no 3D), docx. Static site on
 GitHub Pages; no server. Everything (projects, data pack, IFC files) stays in the user's browser.
 
 ## Rules
@@ -16,19 +16,23 @@ GitHub Pages; no server. Everything (projects, data pack, IFC files) stays in th
   owner's written agreement for published tools), ecoinvent (licensed). They live in the private data pack (`*.wblca`,
   git-ignored), built with `tools/make_pack.py`. Only ÖKOBAUDAT (`public/data/oekobaudat.json.gz`, attribution) is public.
   Do not commit sample projects that use private datasets (they are inside the pack); `src/data/demo.ts` uses ÖKOBAUDAT only.
-- Design: Calibri with Carlito as the metric-compatible web fallback; neutral green palette (`src/styles/tokens.css`,
-  same values as the Excel tool); neat, professional; the report must be ready to submit.
+- Design (Michael's choice, 2 Nov 2026): the app looks and works like Shoebox (shoebox.idfkit.com): a drawing set with a
+  title block, general-notes strip, run-log rail, numbered sheets (A-01 …) and figures, IBM Plex Sans / Sans Condensed /
+  Mono, drafting palette in `src/styles/tokens.css` (light vellum; dark follows the system or the rail switch). Chart
+  colours come from the theme (`PAL` in `Chart.tsx` reads CSS variables). The **report stays paper**: white A4, Calibri
+  (Carlito), the Excel tool's greens (`PAPER` palette; build report charts inside `withPaper()`); it must be ready to submit.
+- No 3D building view (Michael removed it): IFC is used for quantities only, from the BOQ step.
 - Pinned dependency versions (exact, no ranges). Ask Michael before adding services or anything that sends data out.
 
 ## Map
 | Path | Role |
 |---|---|
-| `src/engine/` | types, rules (classes, units, densities), library, calc (BoM engine), leed (paths, points), text (report sentences, contractor), alternatives, montecarlo, benchmarks, guess |
+| `src/engine/` | types, rules (classes, units, densities), library, calc (BoM engine), leed (paths, points), targets (criteria for Chase), text (report sentences, contractor), alternatives (like-for-like rules), montecarlo, benchmarks, guess |
 | `src/data/` | `libraryStore.ts` (public ÖKOBAUDAT, private pack in IndexedDB, search index), `demo.ts` (public example) |
-| `src/state/` | `project.ts` (new / migrate / IndexedDB / files), `store.ts` (zustand: project, result, undo, change line) |
-| `src/ui/` | Shell (title bar with the LEED ruler), pages, components (DatasetCard hover cards, DatasetPicker, Chart), `charts.ts` |
+| `src/state/` | `project.ts` (new / migrate / IndexedDB / files), `store.ts` (zustand: project, result, undo, change line, chase, ghost, recalculation time), `share.ts` (project links: gzip + base64url in `#p=`, names removed) |
+| `src/ui/` | Shell (title block with the LEED ruler, notes strip, rail), `theme.ts`, pages (IfcImport = IFC quantities window), components (DatasetCard hover cards, DatasetPicker, Chart), `charts.ts` |
 | `src/report/` | `model.ts` (report blocks = Excel Report sheet wording), `ReportView.tsx` (measured A4 pagination, print), `docx.ts` (Word), `Figure1.tsx` |
-| `src/ifc/` | `parse.ts` (web-ifc reading, shared by the worker and Node), `ifcWorker.ts`, `load.ts`, `takeoff.ts` (groups, units, categories, BOQ links), `Viewer.ts` (three.js) |
+| `src/ifc/` | `parse.ts` (web-ifc reading, shared by the worker and Node), `ifcWorker.ts`, `load.ts`, `takeoff.ts` (groups, units, categories, BOQ links) |
 | `tools/` | `extract_master.py`, `make_samples.py`, `make_pack.py`, `verify.ts`, `ifc_test.ts` |
 | `tests/` | vitest checks that run without private data (CI runs them) |
 

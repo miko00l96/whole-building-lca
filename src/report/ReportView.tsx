@@ -3,7 +3,7 @@
 // the contents page numbers and the printed PDF agree.
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import * as echarts from 'echarts/core';
-import { withBase, type EOption } from '../ui/components/Chart.tsx';
+import { withBase, withPaper, type EOption } from '../ui/components/Chart.tsx';
 import type { Block, Cell, ReportMeta } from './model.ts';
 import { Figure1 } from './Figure1.tsx';
 import './report.css';
@@ -42,7 +42,7 @@ function ReportChart({ option, h }: { option: EOption; h: number }) {
     const d = el.current;
     if (!d) return;
     const c = echarts.init(d, undefined, { renderer: 'svg', width: d.clientWidth || 642, height: h });
-    c.setOption({ ...withBase(option), animation: false });
+    c.setOption(withPaper(() => ({ ...withBase(option), animation: false })));
     return () => c.dispose();
   }, [option, h]);
   return <div ref={el} className="rpt-chart" style={{ height: h }} />;

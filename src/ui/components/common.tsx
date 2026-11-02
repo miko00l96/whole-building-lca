@@ -88,13 +88,21 @@ export function QaBadge({ stat, qa }: { stat: string; qa: string }) {
   return <span className={`qa ${k}`} title={qa}>{stat}</span>;
 }
 
+/** "4,022.7 t CO2e" → the figure in mono, the unit set small beside it, as a dimension on a drawing. */
+const figure = (v: ReactNode) => {
+  if (typeof v !== 'string') return v;
+  // the unit: words that do not start with a digit ("t CO2e", "kg/m²", "points"); "3 of 14" and ranges stay as they are
+  const m = /^([▲▼]?\s?[−+-]?[\d,.]+(?:E[−+-]?\d+)?%?)\s+([^\d\s]\S*(?:\s+[^\d\s]\S*)*)$/.exec(v);
+  return m ? <>{m[1]}<span className="t-unit">{m[2]}</span></> : v;
+};
+
 export function Tiles({ items }: { items: { lab: ReactNode; val: ReactNode; sub?: ReactNode; tone?: 'good' | 'bad' | '' }[] }) {
   return (
     <div className="tiles">
       {items.map((t, i) => (
         <div className="tile" key={i}>
           <div className="t-lab">{t.lab}</div>
-          <div className={`t-val ${t.tone ?? ''}`}>{t.val}</div>
+          <div className={`t-val ${t.tone ?? ''}`}>{figure(t.val)}</div>
           {t.sub != null && <div className="t-sub">{t.sub}</div>}
         </div>
       ))}

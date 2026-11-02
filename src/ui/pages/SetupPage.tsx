@@ -25,9 +25,9 @@ export function SetupPage() {
     <div className="page narrow">
       <div className="page-head">
         <div>
-          <div className="step-label">Step 1 of 5</div>
+          <div className="step-label"><span className="sheet-no">A-01</span> · Step 1 of 5</div>
           <h1>Project setup</h1>
-          <p className="lede">Green fields are inputs; everything else is calculated. The rating system sets the scope, the element list, the minimum study period and the LEED paths.</p>
+          <p className="lede">Shaded fields are inputs; everything else is calculated. The rating system sets the scope, the element list, the minimum study period and the LEED paths.</p>
         </div>
       </div>
 

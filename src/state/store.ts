@@ -5,7 +5,7 @@ import type { Choice, Design, Project } from '../engine/types.ts';
 import { lib } from '../data/libraryStore.ts';
 import { saveProjectLocal, today } from './project.ts';
 
-export type Page = 'start' | 'setup' | 'boq' | 'designs' | 'results' | 'dashboard' | 'insights' | 'model' | 'report' | 'contractor'
+export type Page = 'start' | 'setup' | 'boq' | 'designs' | 'results' | 'dashboard' | 'insights' | 'report' | 'contractor'
   | 'finder' | 'data';
 
 export interface LastChange {
@@ -25,6 +25,10 @@ interface State {
   designTab: string; // design id
   selLine: string | null; // selected line key (drawer)
   toasts: { id: number; text: string }[];
+  calcMs: number; // time of the last full recalculation
+  chase: string | null; // id of the standard pinned to the title bar (engine/targets.ts)
+  ghost: number | null; // GWP change before the last edit (ghost marker on the ruler)
+  setChase: (id: string | null) => void;
   openProject: (p: Project | null, page?: Page) => void;
   commit: (fn: (p: Project) => void, meta?: { designId?: string; label?: string }) => void;
   setChoice: (designId: string, lineKey: string, patch: Partial<Choice> | null, replace?: boolean) => void;
@@ -37,14 +41,24 @@ interface State {
   toast: (text: string) => void;
 }
 
+let lastMs = 0;
 function calc(p: Project | null): ProjectResult | null {
   if (!p) return null;
+  const t0 = performance.now();
   try {
     return computeProject(p, lib, today());
   } catch (e) {
     console.error('calculation failed', e);
     return null;
+  } finally {
+    lastMs = performance.now() - t0;
   }
+}
+
+const chaseKey = (id: string) => `wblca:chase:${id}`;
+function loadChase(id: string | undefined): string | null {
+  if (!id) return null;
+  try { return localStorage.getItem(chaseKey(id)); } catch { return null; }
 }
 
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
@@ -90,11 +104,14 @@ export const useApp = create<State>()((set, get) => ({
   designTab: '',
   selLine: null,
   toasts: [],
+  calcMs: 0,
+  chase: null,
+  ghost: null,
 
   openProject: (p, page) => {
     const result = calc(p);
     set({
-      project: p, result, past: [], future: [], lastChange: null, selLine: null,
+      project: p, result, past: [], future: [], lastChange: null, selLine: null, calcMs: lastMs, chase: loadChase(p?.id), ghost: null,
       designTab: p?.designs.find((d) => d.kind === 'proposed')?.id ?? p?.designs[0]?.id ?? '',
       page: page ?? (p ? (p.boq.length ? 'designs' : 'setup') : 'start'),
     });
@@ -108,9 +125,12 @@ export const useApp = create<State>()((set, get) => ({
     fn(next);
     next.updatedAt = new Date().toISOString();
     next.name = next.setup.projectName || next.name;
+    const before = get().result;
     const result = calc(next);
-    const lastChange = describeChange(get().result, result, meta?.designId) ?? get().lastChange;
-    set({ project: next, result, past: [...get().past.slice(-99), cur], future: [], lastChange });
+    const lastChange = describeChange(before, result, meta?.designId) ?? get().lastChange;
+    const b0 = before?.leed.change[0] ?? null, a0 = result?.leed.change[0] ?? null;
+    const ghost = b0 != null && a0 != null && Math.abs(a0 - b0) > 1e-9 ? b0 : get().ghost;
+    set({ project: next, result, past: [...get().past.slice(-99), cur], future: [], lastChange, calcMs: lastMs, ghost });
     scheduleSave(next);
   },
 
@@ -135,17 +155,22 @@ export const useApp = create<State>()((set, get) => ({
     const { past, project, future } = get();
     if (!past.length || !project) return;
     const prev = past[past.length - 1];
-    set({ project: prev, result: calc(prev), past: past.slice(0, -1), future: [project, ...future].slice(0, 100), lastChange: null });
+    set({ project: prev, result: calc(prev), past: past.slice(0, -1), future: [project, ...future].slice(0, 100), lastChange: null, calcMs: lastMs, ghost: get().result?.leed.change[0] ?? null });
     scheduleSave(prev);
   },
   redo: () => {
     const { past, project, future } = get();
     if (!future.length || !project) return;
     const next = future[0];
-    set({ project: next, result: calc(next), past: [...past, project].slice(-100), future: future.slice(1), lastChange: null });
+    set({ project: next, result: calc(next), past: [...past, project].slice(-100), future: future.slice(1), lastChange: null, calcMs: lastMs, ghost: get().result?.leed.change[0] ?? null });
     scheduleSave(next);
   },
-  recompute: () => set({ result: calc(get().project), libVersion: lib.version }),
+  recompute: () => set({ result: calc(get().project), libVersion: lib.version, calcMs: lastMs }),
+  setChase: (id) => {
+    const p = get().project;
+    if (p) { try { if (id) localStorage.setItem(chaseKey(p.id), id); else localStorage.removeItem(chaseKey(p.id)); } catch { /* per session only */ } }
+    set({ chase: id });
+  },
   go: (page) => set({ page, selLine: null }),
   setDesignTab: (id) => set({ designTab: id, selLine: null }),
   select: (key) => set({ selLine: key }),
