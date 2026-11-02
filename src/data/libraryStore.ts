@@ -79,7 +79,9 @@ export function getSearch(): MiniSearch<SearchDoc> {
 
 export async function loadPublic(base = import.meta.env.BASE_URL): Promise<void> {
   if (lib.has('ÖKOBAUDAT')) return;
-  const res = await fetch(`${base}data/oekobaudat.json.gz`);
+  // gzip on GitHub Pages; a host that does not serve .gz files gets the plain JSON (set VITE_PUBLIC_DATA when building)
+  const file: string = import.meta.env.VITE_PUBLIC_DATA ?? 'data/oekobaudat.json.gz';
+  const res = await fetch(`${base}${file}`);
   if (!res.ok) throw new Error(`ÖKOBAUDAT could not be loaded (${res.status})`);
   const doc = JSON.parse(await gunzipText(await res.arrayBuffer()));
   lib.set('ÖKOBAUDAT', doc.rows.map((r: any) => normalise('ÖKOBAUDAT', r)), {

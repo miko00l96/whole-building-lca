@@ -46,3 +46,10 @@ site (`npx vite preview`) with Playwright (Chromium is pre-installed in Claude's
 split between rows with repeated headers, no single-row remnants; soft page breaks of the Excel page plan apply only when
 a page is at least 40 % full). Printing uses the same sheets, so the PDF page numbers match the contents page. The Word
 export keeps only the hard breaks (`break.word`) and lets Word number the contents (it asks to update fields on opening).
+
+## Private copy on claude.ai (until GitHub Pages is live)
+Michael's private artifact https://claude.ai/artifact/HEL2Xd3yxUrFcRG7zHVKas (republish to the same URL with `url`). Build with
+`VITE_PUBLIC_DATA=data/oekobaudat.json npx vite build --outDir <scratch>`; the page is `index.html` without doctype/html/head/body
+(title, icon, CSS link, `<div id="root">`, module script); publish every file except `*.woff` and the `.gz` (unpack it to
+`data/oekobaudat.json`: .gz is not served); escape U+FFFD in the docx chunk as `\uFFFD` (the publisher refuses it). In the
+artifact frame, printing, file downloads (Word, project files) and `#p=` project links do not work; everything else does.
