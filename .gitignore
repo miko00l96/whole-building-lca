@@ -1,0 +1,8 @@
+node_modules/
+dist/
+*.wblca
+private/
+data_out/
+.DS_Store
+*.ifc
+!public/samples/*.ifc

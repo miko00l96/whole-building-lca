@@ -1,0 +1,111 @@
+/* The LEED report: A4 sheets of 210 x 297 mm with a 170 x 255 mm text area. The preview is paged exactly as the print, so the
+   PDF saved from the browser has the page numbers of the contents page. Sizes in pt like the Excel Report sheet. */
+.rpt-type {
+  font-family: Calibri, Carlito, 'Segoe UI', sans-serif; font-size: 9.5pt; line-height: 1.3; color: var(--ink);
+  font-variant-numeric: tabular-nums; -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+.rpt-type p { margin: 0; }
+.rpt-wrap { display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 4px 0 48px; }
+.rpt-sheet {
+  position: relative; width: 210mm; height: 297mm; flex: none; background: #fff; overflow: hidden;
+  box-shadow: 0 1px 2px rgba(23, 64, 43, 0.14), 0 10px 28px rgba(23, 64, 43, 0.09);
+}
+.rpt-head, .rpt-foot { position: absolute; left: 20mm; right: 20mm; display: flex; justify-content: space-between; gap: 16px; font-size: 8pt; color: var(--ink2); }
+.rpt-head { top: 10mm; }
+.rpt-foot { bottom: 9mm; }
+.rpt-head span:last-child, .rpt-foot span:last-child { text-align: right; }
+.rpt-body { position: absolute; left: 20mm; top: 22mm; width: 170mm; height: 255mm; }
+.rpt-flow { width: 170mm; }
+.rpt-measure { position: absolute; left: -20000px; top: 0; visibility: hidden; pointer-events: none; }
+
+/* blocks: each one is measured on its own, so their margins stay inside them */
+.rb { display: flow-root; }
+.rpt-h1 { background: var(--green); color: #fff; font-weight: 700; font-size: 10.5pt; letter-spacing: 0.2px; padding: 3.5pt 8pt 3pt; margin: 6pt 0 6pt; }
+.rpt-h2 { font-weight: 700; font-size: 10.5pt; color: var(--dark); margin: 7pt 0 4pt; }
+.rpt-p { margin: 0 0 5pt !important; }
+.rpt-p.note { font-size: 8.5pt; font-style: italic; color: var(--muted); }
+.rpt-p.small { font-size: 9pt; color: var(--ink2); }
+.rpt-p.bullet { position: relative; padding-left: 12pt; }
+.rpt-p.bullet::before { content: '•'; position: absolute; left: 2pt; top: 0; color: var(--green); font-weight: 700; }
+
+.rpt-kv { width: 100%; border-collapse: collapse; margin: 0 0 6pt; }
+.rpt-kv th { width: 27%; text-align: left; vertical-align: top; font-weight: 700; color: var(--dark); padding: 3pt 10pt 3pt 0; }
+.rpt-kv td { vertical-align: top; padding: 3pt 0; }
+.rpt-kv tr + tr > * { border-top: 1px solid var(--line2); }
+
+.rpt-tiles { display: grid; grid-template-columns: 1fr 1fr 0.8fr 1.1fr; gap: 3pt; margin: 2pt 0 8pt; }
+.rpt-tile { background: var(--tile); padding: 5pt 8pt 6pt; }
+.rpt-tile .l { font-size: 7.5pt; font-weight: 700; color: var(--ink2); letter-spacing: 0.3px; }
+.rpt-tile .v { font-size: 16pt; font-weight: 700; line-height: 1.15; margin: 2pt 0 1pt; white-space: nowrap; }
+.rpt-tile .s { font-size: 8.5pt; color: var(--ink2); }
+
+.rpt-cap { font-weight: 700; font-size: 9.5pt; color: var(--green); margin: 3pt 0 4pt; }
+.rpt-tbl { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 8.5pt; line-height: 1.25; margin: 0 0 6pt; }
+.rpt-tbl.xs { font-size: 8pt; }
+.rpt-tbl th { background: var(--light); color: var(--dark); font-weight: 700; text-align: center; vertical-align: middle; padding: 3pt 4pt; border: 1px solid var(--line); }
+.rpt-tbl td { padding: 2.4pt 4pt; border: 1px solid #dde5df; vertical-align: top; overflow-wrap: anywhere; }
+.rpt-tbl td.r { text-align: right; white-space: nowrap; }
+.rpt-tbl td.c { text-align: center; }
+.rpt-tbl td.b { font-weight: 700; }
+.rpt-tbl tfoot td { background: #eef4f0; font-weight: 700; border-top: 1px solid var(--green); border-bottom: 1px solid var(--green); }
+.t-good { color: var(--good); }
+.t-bad { color: var(--bad); }
+.t-warn { color: var(--warn-ink); }
+.t-muted { color: var(--muted); }
+
+.rpt-chart-t { font-weight: 700; font-size: 9.5pt; color: var(--dark); margin: 5pt 0 2pt; }
+.rpt-chart { margin: 0 0 6pt; }
+.rpt-fig1 { display: block; width: 100%; height: auto; margin: 2pt 0 3pt; }
+.rpt-figcap { font-weight: 700; font-size: 9.5pt; color: var(--green); margin: 0 0 8pt; }
+
+.rpt-decl { width: 100%; border-collapse: collapse; margin: 6pt 0 4pt; font-size: 10pt; }
+.rpt-decl th { text-align: left; font-weight: 700; color: var(--dark); font-size: 9.5pt; padding: 18pt 8pt 2pt 0; width: 16%; vertical-align: bottom; }
+.rpt-decl td { border-bottom: 1px solid var(--ink2); padding: 18pt 4pt 2pt; vertical-align: bottom; }
+.rpt-decl th.r { padding-left: 14pt; }
+
+/* contents */
+.rpt-toc-t { font-size: 18pt; font-weight: 700; color: var(--dark); margin: 2pt 0 14pt; }
+.rpt-toc a { display: flex; align-items: baseline; gap: 8px; padding: 4.5pt 2pt 3pt; border-bottom: 1px dotted #b9c4be; color: var(--ink); text-decoration: none; font-size: 11pt; }
+.rpt-toc a.l0 { font-weight: 700; }
+.rpt-toc a.l2 { font-size: 10pt; padding-left: 26pt; }
+.rpt-toc .n { width: 26pt; flex: none; }
+.rpt-toc a.l0 .n { width: auto; }
+.rpt-toc .t { flex: 1; }
+.rpt-toc .pg { min-width: 24pt; text-align: right; }
+
+/* cover */
+.rpt-cover { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 22mm; }
+.rpt-cover .band { position: absolute; left: 0; right: 0; height: 12px; background: var(--dark); }
+.rpt-cover .band.top { top: 0; }
+.rpt-cover .band.bottom { bottom: 0; height: 8px; }
+.rpt-cover .logo { margin-top: 30mm; height: 34mm; width: 100%; display: flex; align-items: center; justify-content: center; }
+.rpt-cover .logo img { max-height: 34mm; max-width: 80mm; object-fit: contain; }
+.rpt-cover .logo-ph { width: 92mm; height: 30mm; border: 1.5px dashed #b9c4be; color: var(--muted); font-size: 9pt; display: grid; place-items: center; padding: 6px; }
+.rpt-cover .title { margin-top: 18mm; font-size: 26pt; font-weight: 700; color: var(--dark); line-height: 1.1; }
+.rpt-cover .subtitle { font-size: 15pt; color: var(--ink2); margin-top: 4pt; }
+.rpt-cover .rule { width: 42%; height: 0; border-top: 2pt solid var(--green); margin: 12pt 0 22pt; }
+.rpt-cover .proj { font-size: 20pt; font-weight: 700; line-height: 1.15; }
+.rpt-cover .sys { font-size: 16pt; font-weight: 700; color: var(--green); margin-top: 8pt; }
+.rpt-cover .credit { font-size: 10.5pt; color: var(--ink2); margin-top: 4pt; max-width: 140mm; }
+.rpt-cover .facts { margin-top: 24mm; border-collapse: collapse; font-size: 10.5pt; }
+.rpt-cover .facts th { text-align: right; font-size: 9.5pt; color: var(--ink2); font-weight: 700; padding: 3pt 10pt; white-space: nowrap; }
+.rpt-cover .facts td { text-align: left; padding: 3pt 10pt; }
+.rpt-cover .with { position: absolute; bottom: 16mm; left: 20mm; right: 20mm; font-size: 8.5pt; color: var(--muted); }
+
+.rpt-toolbar { position: sticky; top: 0; z-index: 5; background: var(--paper); padding: 10px 0 12px; margin-bottom: 4px; border-bottom: 1px solid var(--line2); }
+.rpt-status { font-size: 12.5px; color: var(--ink2); }
+.rpt-toolbar .chip { font-size: 12.5px; padding: 3px 10px; border: none; cursor: pointer; font-family: inherit; }
+.rpt-toolbar .chip:disabled { cursor: default; }
+.rpt-toolbar .chip.amber:hover { background: #ffe9c7; }
+
+@media print {
+  @page { size: A4; margin: 0; }
+  html, body, #root { height: auto !important; background: #fff !important; }
+  .shell { display: block !important; height: auto !important; }
+  .topbar, .sidebar, .change-strip, .toast-zone, .rpt-toolbar, .no-print { display: none !important; }
+  .main { overflow: visible !important; height: auto !important; }
+  .page.report-page { padding: 0 !important; max-width: none !important; }
+  .rpt-wrap { display: block; padding: 0; gap: 0; }
+  .rpt-sheet { box-shadow: none; margin: 0; height: 296.5mm; break-after: page; page-break-after: always; }
+  .rpt-sheet:last-child { break-after: auto; page-break-after: auto; }
+}

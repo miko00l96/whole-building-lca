@@ -1,0 +1,44 @@
+# Whole building LCA (web app) — brief for Claude
+
+Owner: Michael Hanna (sustainability consultant, REEDS Consultant, Cairo; LEED AP BD+C, LCA specialist). He is not a
+programmer: Claude writes, runs and checks everything; Michael reviews the result in the browser. Plain-language summaries.
+
+## What this is
+The browser version of the *Whole building LCA* Excel tool (v7.1): LEED BD+C v4.1 Option 2 / v4 Option 4 whole-building LCA
+and ID+C v4.1 Option 3 interiors LCA. React 19 + Vite 8 + TypeScript, ECharts, three.js + web-ifc, docx. Static site on
+GitHub Pages; no server. Everything (projects, data pack, IFC files) stays in the user's browser.
+
+## Rules
+- **Engine fidelity**: `src/engine/` is a line-by-line port of the Excel formulas. Any change to `calc.ts`, `leed.ts`,
+  `text.ts`, `library.ts` or `rules.ts` must keep `node --experimental-strip-types tools/verify.ts <data_out> 2026-11-02` at
+  **5663 checks, 0 failures** (needs the private data in Claude's workspace). Explain any intended change of results.
+- **Licensed data never enters the repository**: EPD library (EPD International data: no redistribution), IDEMAT (needs the
+  owner's written agreement for published tools), ecoinvent (licensed). They live in the private data pack (`*.wblca`,
+  git-ignored), built with `tools/make_pack.py`. Only ÖKOBAUDAT (`public/data/oekobaudat.json.gz`, attribution) is public.
+  Do not commit sample projects that use private datasets (they are inside the pack); `src/data/demo.ts` uses ÖKOBAUDAT only.
+- Design: Calibri with Carlito as the metric-compatible web fallback; neutral green palette (`src/styles/tokens.css`,
+  same values as the Excel tool); neat, professional; the report must be ready to submit.
+- Pinned dependency versions (exact, no ranges). Ask Michael before adding services or anything that sends data out.
+
+## Map
+| Path | Role |
+|---|---|
+| `src/engine/` | types, rules (classes, units, densities), library, calc (BoM engine), leed (paths, points), text (report sentences, contractor), alternatives, montecarlo, benchmarks, guess |
+| `src/data/` | `libraryStore.ts` (public ÖKOBAUDAT, private pack in IndexedDB, search index), `demo.ts` (public example) |
+| `src/state/` | `project.ts` (new / migrate / IndexedDB / files), `store.ts` (zustand: project, result, undo, change line) |
+| `src/ui/` | Shell (title bar with the LEED ruler), pages, components (DatasetCard hover cards, DatasetPicker, Chart), `charts.ts` |
+| `src/report/` | `model.ts` (report blocks = Excel Report sheet wording), `ReportView.tsx` (measured A4 pagination, print), `docx.ts` (Word), `Figure1.tsx` |
+| `src/ifc/` | `parse.ts` (web-ifc reading, shared by the worker and Node), `ifcWorker.ts`, `load.ts`, `takeoff.ts` (groups, units, categories, BOQ links), `Viewer.ts` (three.js) |
+| `tools/` | `extract_master.py`, `make_samples.py`, `make_pack.py`, `verify.ts`, `ifc_test.ts` |
+| `tests/` | vitest checks that run without private data (CI runs them) |
+
+## Checks before pushing
+`npm run typecheck`, `npm test`, `npm run build`; with private data also `tools/verify.ts`. For UI changes, run the built
+site (`npx vite preview`) with Playwright (Chromium is pre-installed in Claude's workspace) and look at screenshots.
+`?debug` in the address exposes `window.wblca = { useApp, lib }` for scripted checks.
+
+## Report
+`ReportView` measures every block in a hidden 170 mm column and lays out A4 pages (headings kept with what follows, tables
+split between rows with repeated headers, no single-row remnants; soft page breaks of the Excel page plan apply only when
+a page is at least 40 % full). Printing uses the same sheets, so the PDF page numbers match the contents page. The Word
+export keeps only the hard breaks (`break.word`) and lets Word number the contents (it asks to update fields on opening).

@@ -1,0 +1,41 @@
+/* 3D model page: take-off list on the left, the model on the right. */
+.mdl { display: grid; grid-template-columns: minmax(380px, 480px) minmax(0, 1fr); gap: 14px; height: calc(100vh - var(--topbar) - 150px); min-height: 540px; }
+.mdl-side { display: flex; flex-direction: column; min-height: 0; background: #fff; border: 1px solid var(--line); border-radius: var(--r-lg); overflow: hidden; }
+.mdl-side .hd { padding: 10px 12px 9px; border-bottom: 1px solid var(--line2); display: flex; flex-direction: column; gap: 6px; }
+.mdl-list { overflow: auto; flex: 1; }
+.mdl-grp { padding: 8px 12px 9px; border-bottom: 1px solid var(--line2); cursor: pointer; display: grid; grid-template-columns: 10px minmax(0, 1fr) auto; gap: 4px 9px; }
+.mdl-grp:hover { background: #fafcfa; }
+.mdl-grp.focus { background: var(--tint); box-shadow: inset 3px 0 0 var(--green); }
+.mdl-grp.out { opacity: 0.66; }
+.mdl-grp .dot { width: 10px; height: 10px; border-radius: 2px; margin-top: 4px; }
+.mdl-grp .ttl { font-weight: 700; font-size: 13px; line-height: 1.25; overflow-wrap: anywhere; }
+.mdl-grp .mat { font-size: 12px; color: var(--ink2); overflow-wrap: anywhere; }
+.mdl-grp .qty { font-size: 12px; color: var(--ink2); white-space: nowrap; text-align: right; }
+.mdl-grp .gnote { font-size: 11.5px; color: var(--warn-ink); }
+.mdl-grp .ctl { grid-column: 2 / 4; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 3px; }
+.mdl-grp .ctl select { height: 26px; font-size: 12.5px; padding: 0 4px; width: auto; max-width: 210px; }
+.mdl-view { position: relative; border: 1px solid var(--line); border-radius: var(--r-lg); overflow: hidden; background: radial-gradient(ellipse at 50% 30%, #ffffff 0%, #eff3f0 62%, #e2e9e4 100%); }
+.mdl-canvas { position: absolute; inset: 0; }
+.mdl-tools { position: absolute; top: 10px; left: 10px; right: 10px; display: flex; gap: 8px; align-items: flex-start; flex-wrap: wrap; pointer-events: none; }
+.mdl-tools > * { pointer-events: auto; }
+.mdl-tools .seg { background: rgba(255, 255, 255, 0.94); }
+.mdl-tools select.inp { height: 30px; width: auto; background: rgba(255, 255, 255, 0.94); }
+.mdl-legend { position: absolute; left: 10px; bottom: 10px; background: rgba(255, 255, 255, 0.94); border: 1px solid var(--line); border-radius: var(--r); padding: 8px 10px 7px; font-size: 12px; max-width: 320px; }
+.mdl-legend b { display: block; font-size: 12px; color: var(--dark); margin-bottom: 4px; }
+.mdl-legend .it { display: flex; align-items: center; gap: 6px; line-height: 1.5; }
+.mdl-legend .sw { width: 12px; height: 12px; border-radius: 2px; flex: none; }
+.mdl-tip { position: absolute; pointer-events: none; background: #fff; border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--shadow-pop); padding: 8px 10px; font-size: 12.5px; width: max-content; max-width: 330px; z-index: 3; line-height: 1.35; }
+.mdl-tip .t { font-weight: 700; color: var(--dark); }
+.mdl-sel { position: absolute; right: 10px; bottom: 10px; width: 350px; max-height: calc(100% - 64px); overflow: auto; background: #fff; border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: var(--shadow-pop); font-size: 12.5px; }
+.mdl-sel .hd { padding: 9px 12px; border-bottom: 1px solid var(--line2); display: flex; gap: 8px; align-items: flex-start; }
+.mdl-sel .bd { padding: 8px 12px 10px; display: flex; flex-direction: column; gap: 6px; }
+.mdl-sel dl { display: grid; grid-template-columns: 96px 1fr; gap: 3px 10px; margin: 0; }
+.mdl-sel dt { color: var(--ink2); }
+.mdl-sel dd { margin: 0; overflow-wrap: anywhere; }
+.mdl-busy { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(246, 248, 246, 0.82); z-index: 4; }
+.mdl-busy .bar { width: 260px; height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; margin-top: 10px; }
+.mdl-busy .bar i { display: block; height: 100%; background: var(--green); transition: width 0.2s; }
+.mdl-drop { border: 2px dashed #b9c4be; border-radius: var(--r-lg); background: #fff; padding: 46px 32px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.mdl-drop.over { border-color: var(--green); background: var(--tint); }
+.mdl-drop ul { text-align: left; margin: 6px 0 0; padding-left: 18px; color: var(--ink2); font-size: 13.5px; max-width: 640px; }
+@media (max-width: 1100px) { .mdl { grid-template-columns: 1fr; height: auto; } .mdl-view { height: 560px; } .mdl-side { max-height: 520px; } }

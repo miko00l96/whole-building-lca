@@ -1,0 +1,37 @@
+{
+  "name": "whole-building-lca",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Whole building LCA for LEED v4/v4.1 (BD+C whole-building LCA and ID+C interiors LCA) in the browser",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@floating-ui/react": "0.27.20",
+    "@fontsource/carlito": "5.3.0",
+    "docx": "9.12.0",
+    "echarts": "6.1.0",
+    "idb-keyval": "6.3.0",
+    "minisearch": "7.2.0",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "read-excel-file": "9.3.12",
+    "three": "0.186.1",
+    "web-ifc": "0.0.78",
+    "zustand": "5.0.15"
+  },
+  "devDependencies": {
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@types/three": "0.186.0",
+    "@vitejs/plugin-react": "6.1.2",
+    "typescript": "5.9.3",
+    "vite": "8.3.4",
+    "vitest": "5.0.5"
+  }
+}
