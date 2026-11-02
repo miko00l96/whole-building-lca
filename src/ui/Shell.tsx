@@ -4,8 +4,9 @@ import { useApp, type Page } from '../state/store.ts';
 import { BrandMark, Icon } from './icons.tsx';
 import { fmt } from './format.ts';
 import { lib, packMeta } from '../data/libraryStore.ts';
-import { saveProjectFile } from '../state/project.ts';
+import { readProjectFile, saveProjectFile } from '../state/project.ts';
 import { projectLink } from '../state/share.ts';
+import { choosePack } from './components/PackPrompt.tsx';
 import { targets, worstRow } from '../engine/targets.ts';
 import { applyTheme, getThemeChoice, onSystemTheme, type ThemeChoice } from './theme.ts';
 
@@ -84,9 +85,42 @@ const TOOLS: { page: Page; label: string; icon: keyof typeof Icon }[] = [
 ];
 
 export function Shell({ children }: { children: ReactNode }) {
-  const { page, go, project, result, undo, redo, past, future, lastChange, commit, calcMs, toast, recompute } = useApp();
+  const { page, go, project, result, undo, redo, past, future, lastChange, commit, calcMs, toast, recompute, openProject } = useApp();
   const [theme, setTheme] = useState<ThemeChoice>(getThemeChoice);
+  const [dropping, setDropping] = useState(false);
   useEffect(() => onSystemTheme(() => recompute()), [recompute]);
+  useEffect(() => {
+    // the data pack (.wblca) or a project file (.wblca.json) can be dropped anywhere; drop zones of their own (IFC) come first
+    let depth = 0;
+    const files = (e: DragEvent) => Array.from(e.dataTransfer?.types ?? []).includes('Files');
+    const enter = (e: DragEvent) => { if (files(e) && !document.querySelector('.modal-back')) { depth++; setDropping(true); } };
+    const leave = (e: DragEvent) => { if (files(e) && depth > 0 && --depth === 0) setDropping(false); };
+    const over = (e: DragEvent) => { if (files(e)) e.preventDefault(); };
+    const drop = async (e: DragEvent) => {
+      depth = 0;
+      setDropping(false);
+      if (!files(e)) return;
+      const handled = e.defaultPrevented;
+      e.preventDefault(); // otherwise the browser opens the file in place of the app
+      const f = e.dataTransfer?.files[0];
+      if (handled || !f) return;
+      const n = f.name.toLowerCase();
+      if (n.endsWith('.json')) {
+        try { openProject(await readProjectFile(f)); toast('Project opened'); } catch (err: any) { toast(err?.message ?? 'This file could not be read.'); }
+      } else if (n.endsWith('.ifc')) toast('IFC models open from the bill of quantities: Quantities from IFC.');
+      else await choosePack(f);
+    };
+    window.addEventListener('dragenter', enter);
+    window.addEventListener('dragleave', leave);
+    window.addEventListener('dragover', over);
+    window.addEventListener('drop', drop);
+    return () => {
+      window.removeEventListener('dragenter', enter);
+      window.removeEventListener('dragleave', leave);
+      window.removeEventListener('dragover', over);
+      window.removeEventListener('drop', drop);
+    };
+  }, [openProject, toast]);
   useEffect(() => {
     const k = (e: KeyboardEvent) => {
       const tag = (e.target as HTMLElement)?.tagName;
@@ -152,7 +186,7 @@ export function Shell({ children }: { children: ReactNode }) {
           <dl className="tb-spec">
             <dt>Engine</dt><dd>Whole building LCA 7.1</dd>
             <dt>Indicators</dt><dd>EN 15804+A2</dd>
-            <dt>Data</dt><dd>{packMeta ? 'ÖKOBAUDAT + private pack' : 'ÖKOBAUDAT'}</dd>
+            <dt>Data</dt><dd>{packMeta ? 'ÖKOBAUDAT + private pack' : 'ÖKOBAUDAT only'}</dd>
             <dt>Server</dt><dd>None</dd>
           </dl>
         )}
@@ -204,7 +238,7 @@ export function Shell({ children }: { children: ReactNode }) {
         </>}
         <div className="rail-block" style={{ marginTop: 'auto' }}>
           <dl className="rail-stats">
-            <dt>Data</dt><dd><button className={`data-pill ${packMeta ? 'private' : ''}`} onClick={() => go('data')}>{packMeta ? 'pack loaded' : 'public'}</button></dd>
+            <dt>Data</dt><dd><button className={`data-pill ${packMeta ? 'private' : 'missing'}`} onClick={() => go('data')} title={packMeta ? packMeta.title : 'EPD library, IDEMAT and ecoinvent are not loaded in this browser'}>{packMeta ? 'pack loaded' : 'public only'}</button></dd>
             <dt>Datasets</dt><dd>{fmt(lib.bySrc.EPD.length + lib.bySrc.IDEMAT.length + lib.bySrc['ÖKOBAUDAT'].length + lib.bySrc.ecoinvent.length)}</dd>
             <dt>Server</dt><dd>none</dd>
           </dl>
@@ -214,6 +248,7 @@ export function Shell({ children }: { children: ReactNode }) {
         </div>
       </nav>
       <main className="main" id="main">{children}</main>
+      {dropping && <div className="drop-veil" aria-hidden="true"><span>Drop the data pack (.wblca) or a project file (.wblca.json)</span></div>}
       <Toasts />
     </div>
   );

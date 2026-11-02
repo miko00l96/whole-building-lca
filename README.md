@@ -36,12 +36,14 @@ QA notes, LEED changes, paths, points and report figures) agree.
   unmodified data may be passed on when the source is named. A4 transport per tonne-km for the nine ÖKOBAUDAT transport
   datasets was read from oekobaudat.de (`tools/oekobaudat_transport_A4.json`).
 - **The product EPD library, IDEMAT 2026 and ecoinvent 3.9.1** are licensed and are **not** in this repository. They travel
-  as a private data pack (`.wblca`) that the owner keeps on their own drive and loads in the browser (Data & libraries).
+  as a private data pack (`.wblca`) that the owner keeps on their own drive and loads once in each browser: *Load the
+  data pack* on the start page, in the material picker or under Data & libraries, or drop the file anywhere on the page.
   The pack is stored in that browser only and is never uploaded. Give it only to people who hold their own ecoinvent licence.
 - Projects are kept in the browser (IndexedDB) and can be saved as `.wblca.json` files. A project file holds material
   names, not the data.
 
-Without the data pack the app works with ÖKOBAUDAT only, and the start page offers an example project built from it.
+Without the data pack the app works with ÖKOBAUDAT only: the start page and the material picker say that the other
+libraries are not loaded, and the start page offers an example project built from ÖKOBAUDAT.
 
 ## Using it
 

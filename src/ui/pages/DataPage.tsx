@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useApp } from '../../state/store.ts';
-import { lib, loadPackFile, packMeta, removePack } from '../../data/libraryStore.ts';
-import { pickFile } from '../../state/project.ts';
+import { lib, packMeta, removePack } from '../../data/libraryStore.ts';
 import { Icon } from '../icons.tsx';
+import { choosePack } from '../components/PackPrompt.tsx';
 import type { Src } from '../../engine/types.ts';
 
 const ATTR: Record<Src, string> = {
@@ -15,12 +15,7 @@ const ATTR: Record<Src, string> = {
 export function DataPage() {
   const { recompute, toast } = useApp();
   const [, force] = useState(0);
-  const load = async () => {
-    const f = await pickFile('.wblca,application/gzip,application/json');
-    if (!f) return;
-    try { await loadPackFile(f); recompute(); force((x) => x + 1); toast('Private data pack loaded in this browser'); }
-    catch (e: any) { toast(e?.message ?? 'This file could not be read'); }
-  };
+  const load = async () => { if (await choosePack()) force((x) => x + 1); };
   const remove = async () => {
     if (!confirm('Remove the private data pack from this browser? Projects keep their material names; they calculate again when you load the pack.')) return;
     await removePack(); recompute(); force((x) => x + 1); toast('Private data pack removed from this browser');
@@ -36,7 +31,7 @@ export function DataPage() {
           <tbody>{(['EPD', 'ÖKOBAUDAT', 'ecoinvent', 'IDEMAT'] as Src[]).map((s) => {
             const i = lib.info[s];
             return <tr key={s}><td><b>{s}</b></td><td className="num">{i ? lib.bySrc[s].length.toLocaleString() : '–'}</td>
-              <td>{i ? (i.origin === 'public' ? 'Published with the app' : 'Your private data pack') : <span className="muted">not loaded</span>}</td><td className="xs ink2">{i?.title ?? ''}</td></tr>;
+              <td>{i ? (i.origin === 'public' ? 'Published with the app' : 'Your private data pack') : <span className={s === 'ÖKOBAUDAT' ? 'muted' : 'warn'}>{s === 'ÖKOBAUDAT' ? 'not loaded' : 'not loaded: in your data pack'}</span>}</td><td className="xs ink2">{i?.title ?? ''}</td></tr>;
           })}</tbody>
         </table>
         <div className="panel-body row wrap">

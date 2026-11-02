@@ -2,13 +2,14 @@ import { useEffect, useState } from 'react';
 import { useApp } from '../../state/store.ts';
 import { LEED_OPTS } from '../../engine/rules.ts';
 import { cloneProject, deleteProjectLocal, listProjects, loadProjectLocal, newProject, pickFile, readProjectFile, type ProjectIndexEntry } from '../../state/project.ts';
-import { lib, packMeta, samples, loadPackFile } from '../../data/libraryStore.ts';
+import { lib, packMeta, samples } from '../../data/libraryStore.ts';
 import { publicDemo } from '../../data/demo.ts';
 import { Icon } from '../icons.tsx';
+import { PackPrompt, choosePack } from '../components/PackPrompt.tsx';
 import type { SystemIndex } from '../../engine/types.ts';
 
 export function StartPage() {
-  const { openProject, toast, recompute, project } = useApp();
+  const { openProject, toast, project } = useApp();
   const [recent, setRecent] = useState<ProjectIndexEntry[]>([]);
   const [sys, setSys] = useState<SystemIndex>(0);
   const [name, setName] = useState('');
@@ -20,14 +21,10 @@ export function StartPage() {
     if (!f) return;
     try { openProject(await readProjectFile(f)); toast('Project opened'); } catch (e: any) { toast(e.message); }
   };
-  const loadPack = async () => {
-    const f = await pickFile('.wblca,application/gzip,application/json');
-    if (!f) return;
-    try { const m = await loadPackFile(f); recompute(); force((x) => x + 1); toast(`Data pack loaded: ${Object.values(m.counts).reduce((a, b) => a + (b ?? 0), 0).toLocaleString()} datasets`); }
-    catch (e: any) { toast(e.message ?? 'This file could not be read'); }
-  };
+  const loadPack = async () => { if (await choosePack()) force((x) => x + 1); };
   return (
     <div className="start">
+      <PackPrompt />
       <div className="start-hero">
         <div>
           <div className="step-label">Projects</div>
@@ -43,7 +40,7 @@ export function StartPage() {
                 {LEED_OPTS.map((o, i) => <option key={o} value={i}>{o}</option>)}
               </select>
             </div>
-            <div className="row"><button className="btn primary" onClick={start}><Icon.plus /> Create project</button><button className="btn" onClick={open}><Icon.open /> Open a project file</button></div>
+            <div className="row wrap"><button className="btn primary" onClick={start}><Icon.plus /> Create project</button><button className="btn" onClick={open}><Icon.open /> Open a project file</button></div>
           </div>
         </div>
       </div>
@@ -83,7 +80,7 @@ export function StartPage() {
           <p>
             ÖKOBAUDAT OBD 2024-II: {lib.bySrc['ÖKOBAUDAT'].length.toLocaleString()} datasets (public).<br />
             {packMeta ? <>Private data pack: {Object.entries(packMeta.counts).filter(([k]) => k !== 'ÖKOBAUDAT').map(([k, v]) => `${k} ${v?.toLocaleString()}`).join(', ')}. It stays on this computer.</>
-              : <>Your EPD library, IDEMAT and ecoinvent are in a private data pack (.wblca) on your drive. Load it once per browser.</>}
+              : <>EPD library, IDEMAT and ecoinvent: not loaded. They come from your data pack file (.wblca); load it once in each browser.</>}
           </p>
           <button className="btn sm" onClick={loadPack}><Icon.upload /> {packMeta ? 'Load a newer data pack' : 'Load the private data pack'}</button>
         </div>

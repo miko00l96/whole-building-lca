@@ -101,8 +101,11 @@ interface PackDoc {
   samples?: Project[];
 }
 
+const NOT_PACK = 'This file is not a Whole building LCA data pack (.wblca).';
+
 function applyPack(doc: PackDoc) {
-  if (doc.schema !== 'wblca-pack@1') throw new Error('This file is not a Whole building LCA data pack.');
+  if ((doc as any)?.schema === 'wblca-project@1') throw new Error('This is a project file, not the data pack. Open it from Projects: Open a project file.');
+  if (doc?.schema !== 'wblca-pack@1') throw new Error(NOT_PACK);
   const counts: Partial<Record<Src, number>> = {};
   for (const src of ['EPD', 'IDEMAT', 'ecoinvent', 'ÖKOBAUDAT'] as Src[]) {
     const L = doc.libs[src];
@@ -118,8 +121,10 @@ function applyPack(doc: PackDoc) {
 
 /** Load a data pack file chosen by the user; keep a copy in this browser for next time. */
 export async function loadPackFile(file: File | Blob): Promise<PackMeta> {
+  if (file.size > 200e6) throw new Error(NOT_PACK); // the pack is under 1 MB; do not read a video into memory
   const buf = await file.arrayBuffer();
-  const doc = JSON.parse(await gunzipText(buf)) as PackDoc;
+  let doc: PackDoc;
+  try { doc = JSON.parse(await gunzipText(buf)) as PackDoc; } catch { throw new Error(NOT_PACK); }
   applyPack(doc);
   try { await set(PACK_KEY, buf); } catch { /* storage may be blocked: the pack still works for this session */ }
   return packMeta!;

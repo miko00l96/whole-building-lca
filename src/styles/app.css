@@ -149,6 +149,7 @@ p { margin: 0 0 0.6em; }
 .theme-switch button.on { background: var(--ink); color: var(--sheet); }
 .data-pill { font-family: var(--mono); font-size: 11px; color: var(--ink-2); background: none; border: none; padding: 0; cursor: pointer; text-align: left; }
 .data-pill.private { color: var(--cold); }
+.data-pill.missing { color: var(--warn-ink); }
 
 .main { overflow: auto; min-width: 0; position: relative; }
 .page { padding: 22px 26px 60px; max-width: 1700px; }
@@ -349,6 +350,18 @@ select.src-select.ecoinvent { color: var(--src-ei); }
 .note.warn { border-left-color: var(--warm); background: var(--warm-wash); color: var(--ink); }
 .note.bad { border-left-color: var(--redline); background: var(--redline-wash); color: var(--ink); }
 .note.good { border-left-color: var(--cold); background: var(--cold-wash); color: var(--ink); }
+/* private libraries not in this browser yet: a hold note with the way to load them */
+.pack-prompt { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; padding: 14px 18px; margin-bottom: 24px; background: var(--warm-wash); border-left: 2px solid var(--warm); color: var(--ink); }
+.pack-prompt .pp-text { flex: 1 1 420px; min-width: 0; }
+.pack-prompt .pp-title { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
+.pack-prompt p { margin: 0; font-size: 13.5px; color: var(--ink-2); max-width: 74ch; }
+.pack-prompt .pp-act { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.pack-prompt .pp-drop { font-size: 12.5px; color: var(--ink-3); }
+.pack-prompt.compact { padding: 7px 10px; margin: 0; gap: 4px 10px; font-size: 12.5px; }
+.link-btn { background: none; border: 0; padding: 0; font: inherit; font-weight: 600; color: inherit; text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
+.link-btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.drop-veil { position: fixed; inset: 10px; z-index: 1200; display: grid; place-items: center; border: 2px dashed var(--ink-3); background: color-mix(in srgb, var(--sheet) 80%, transparent); pointer-events: none; }
+.drop-veil span { font-family: var(--cond); font-size: 16px; letter-spacing: 0.03em; color: var(--ink); background: var(--sheet); border: 1px solid var(--rule-firm); padding: 10px 16px; }
 
 .empty { padding: 40px 20px; text-align: center; color: var(--ink-2); }
 .empty h3 { margin-bottom: 6px; }
@@ -379,6 +392,7 @@ select.src-select.ecoinvent { color: var(--src-ei); }
 .start-card h3 { font-family: var(--cond); font-weight: 500; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3); }
 .start-card p { color: var(--ink-2); font-size: 13.5px; flex: 1; }
 @media (max-width: 900px) { .start-hero { grid-template-columns: 1fr; } }
+.start-hero > * { min-width: 0; }
 
 /* written result (Shoebox's narrative) */
 .narrative { font-size: 20px; line-height: 1.5; color: var(--ink); max-width: 980px; margin: 4px 0 22px; font-weight: 400; }

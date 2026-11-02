@@ -8,6 +8,7 @@ import { lib, getSearch, datasetByKey } from '../../data/libraryStore.ts';
 import { sig } from '../format.ts';
 import { DatasetCard, isExpired } from './DatasetCard.tsx';
 import { SrcBadge } from './common.tsx';
+import { PackPrompt } from './PackPrompt.tsx';
 import { Icon } from '../icons.tsx';
 
 export interface PickerProps {
@@ -126,6 +127,7 @@ export function DatasetPicker(p: PickerProps) {
                 <label className="check"><input type="checkbox" checked={hideExp} onChange={(e) => setHideExp(e.target.checked)} /> Hide expired</label>
               </div>
               {suggest && <div className="xs muted">Suggestions for “{p.boqText}”. Type to search everything.</div>}
+              <PackPrompt compact />
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 400px', minHeight: 0, flex: 1 }}>
               <div className="picker-list">
