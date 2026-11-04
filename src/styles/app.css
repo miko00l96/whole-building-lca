@@ -358,6 +358,11 @@ select.src-select.ecoinvent { color: var(--src-ei); }
 .pack-prompt .pp-act { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
 .pack-prompt .pp-drop { font-size: 12.5px; color: var(--ink-3); }
 .pack-prompt.compact { padding: 7px 10px; margin: 0; gap: 4px 10px; font-size: 12.5px; }
+.pack-band { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; padding: 9px 20px 9px 26px; background: var(--warm-wash); border-bottom: 1px solid var(--warm); color: var(--ink); font-size: 13px; }
+.pack-band .pb-text { flex: 1 1 380px; min-width: 0; }
+.pack-band .pb-text b { font-weight: 600; }
+.pack-band .pb-drop { font-size: 12px; color: var(--ink-3); }
+@media print { .pack-band, .drop-veil { display: none !important; } }
 .link-btn { background: none; border: 0; padding: 0; font: inherit; font-weight: 600; color: inherit; text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
 .link-btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 .drop-veil { position: fixed; inset: 10px; z-index: 1200; display: grid; place-items: center; border: 2px dashed var(--ink-3); background: color-mix(in srgb, var(--sheet) 80%, transparent); pointer-events: none; }

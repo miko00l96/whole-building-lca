@@ -1,6 +1,6 @@
 // The EPD library, IDEMAT and ecoinvent are licensed, so the site publishes only ÖKOBAUDAT: the other three come from the
 // user's own data pack file. This note says so where materials are chosen, and loads the file with one click or a drop.
-import type { CSSProperties } from 'react';
+import { useState, type CSSProperties } from 'react';
 import { useApp } from '../../state/store.ts';
 import { loadPackFile, packMeta } from '../../data/libraryStore.ts';
 import { pickFile } from '../../state/project.ts';
@@ -27,6 +27,22 @@ export async function choosePack(file?: File | null): Promise<boolean> {
     toast(e?.message ?? 'This file could not be read.');
     return false;
   }
+}
+
+/** One band across the top of every sheet while the pack is not in this browser: the app reopens the last project, so
+ *  the note on the Projects page alone is easy to miss. */
+export function PackBanner() {
+  useApp((s) => s.libVersion);
+  const [hidden, setHidden] = useState(false);
+  if (packMeta || hidden) return null;
+  return (
+    <div className="pack-band" role="note">
+      <span className="pb-text"><b>EPD library, IDEMAT and ecoinvent are not loaded in this browser.</b> Only ÖKOBAUDAT comes with the site; the other three are in your data pack file (.wblca).</span>
+      <button className="btn sm primary" onClick={() => choosePack()}><Icon.upload /> Load the data pack</button>
+      <span className="pb-drop">or drop the file on the page</span>
+      <button className="icon-btn" title="Hide until the page is reloaded" aria-label="Hide this note" onClick={() => setHidden(true)}><Icon.x /></button>
+    </div>
+  );
 }
 
 export function PackPrompt({ compact = false, style }: { compact?: boolean; style?: CSSProperties }) {

@@ -15,6 +15,7 @@ import { ContractorPage } from './ui/pages/ContractorPage.tsx';
 import { FinderPage } from './ui/pages/FinderPage.tsx';
 import { DataPage } from './ui/pages/DataPage.tsx';
 import { ReportPage } from './ui/pages/ReportPage.tsx';
+import { PackBanner } from './ui/components/PackPrompt.tsx';
 
 
 export function App() {
@@ -49,6 +50,7 @@ export function App() {
   return (
     <Shell>
       {err && <div className="note bad" style={{ margin: 16 }}>{err}</div>}
+      {pg !== 'start' && <PackBanner />}
       <Suspense fallback={<div className="empty">Loading…</div>}>
         {pg === 'start' && <StartPage />}
         {pg === 'setup' && <SetupPage />}

@@ -7,7 +7,6 @@ import type { Dataset, Src } from '../../engine/types.ts';
 import { findDatasets } from '../components/DatasetPicker.tsx';
 import { DatasetCard, isExpired } from '../components/DatasetCard.tsx';
 import { SrcBadge } from '../components/common.tsx';
-import { PackPrompt } from '../components/PackPrompt.tsx';
 import { dateFmt, sig } from '../format.ts';
 
 export function FinderPage() {
@@ -47,7 +46,6 @@ export function FinderPage() {
           <p className="lede">One search across every library in this browser, lowest carbon first. Results compare GWP A1–A3 per declared unit and per kg.</p>
         </div>
       </div>
-      <PackPrompt compact style={{ marginBottom: 12 }} />
       <div className="panel" style={{ marginBottom: 12 }}>
         <div className="panel-body row wrap">
           <input className="inp" style={{ flex: '1 1 300px' }} placeholder="Keyword: product, maker, EPD number, class…" value={q} onChange={(e) => setQ(e.target.value)} autoFocus />
